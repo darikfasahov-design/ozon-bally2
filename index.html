@@ -16,29 +16,37 @@
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.2);
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-secondary: rgba(255, 255, 255, 0.9);
             --card-bg: rgba(255, 255, 255, 0.1);
             --input-bg: rgba(255, 255, 255, 0.15);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --dropdown-bg: rgba(30, 30, 50, 0.9);
         }
         
         [data-theme="dark"] {
-            --bg-color-1: #1a1a2e;
-            --bg-color-2: #16213e;
-            --bg-color-3: #0f3460;
-            --bg-color-4: #1a1a4e;
-            --glass-bg: rgba(0, 0, 0, 0.3);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0b0;
-            --card-bg: rgba(30, 30, 50, 0.5);
-            --input-bg: rgba(0, 0, 0, 0.3);
+            --bg-color-1: #0f0c29;
+            --bg-color-2: #302b63;
+            --bg-color-3: #24243e;
+            --bg-color-4: #1a1a2e;
+            --glass-bg: rgba(0, 0, 0, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --card-bg: rgba(20, 20, 40, 0.6);
+            --input-bg: rgba(0, 0, 0, 0.4);
+            --dropdown-bg: rgba(20, 20, 40, 0.95);
         }
         
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes darkGradientShift {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
         }
         
         body {
@@ -52,13 +60,22 @@
             transition: all 0.3s ease;
         }
         
+        [data-theme="dark"] body {
+            animation: darkGradientShift 20s ease infinite;
+        }
+        
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
+        }
+        
+        [data-theme="dark"] body::before {
+            background: radial-gradient(circle at 30% 70%, rgba(100,100,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, rgba(255,100,200,0.08) 0%, transparent 50%);
         }
         
         .container { 
@@ -154,10 +171,11 @@
         
         label { 
             display: block; 
-            font-size: 14px; 
-            font-weight: 500; 
+            font-size: 15px; 
+            font-weight: 600; 
             margin-bottom: 8px; 
             color: var(--text-primary);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         
         input, textarea, select {
@@ -170,6 +188,12 @@
             backdrop-filter: blur(10px);
             color: var(--text-primary);
             transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        select option {
+            background: var(--dropdown-bg);
+            color: var(--text-primary);
         }
         
         input:focus, textarea:focus, select:focus {
@@ -179,7 +203,7 @@
         }
         
         input::placeholder, textarea::placeholder {
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.6);
         }
         
         .btn {
@@ -224,10 +248,12 @@
             padding: 18px; 
             background: rgba(0,0,0,0.2);
             font-weight: 600;
+            color: var(--text-primary);
         }
         .orders-table td { 
-            padding: 16px 18px; 
+            padding: 12px 18px; 
             border-bottom: 1px solid var(--glass-border);
+            color: var(--text-primary);
         }
         .orders-table tr:hover { background: rgba(255,255,255,0.05); }
         
@@ -242,28 +268,38 @@
         .status-process { background: rgba(0,91,255,0.3); color: #6eb5ff; }
         .status-done { background: rgba(40,167,69,0.3); color: #4ade80; }
         
+        .product-link {
+            color: #ffd93d;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .product-link:hover { text-decoration: underline; }
+        
         .tag {
             display: inline-block; 
             padding: 4px 12px; 
             border-radius: 30px;
             font-size: 11px; 
-            font-weight: 600; 
+            font-weight: 700; 
             margin-right: 6px;
             margin-bottom: 4px;
+            color: #1a1a2e;
         }
-        .tag-vip { background: linear-gradient(135deg, #ffd700, #ffb300); color: #1a1a2e; }
+        .tag-vip { background: linear-gradient(135deg, #ffd700, #ffb300); }
         .tag-urgent { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-        .tag-problem { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a2e; }
-        .tag-regular { background: rgba(108,117,125,0.5); color: white; }
+        .tag-problem { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .tag-regular { background: rgba(108,117,125,0.7); color: white; }
         .tag-new { background: linear-gradient(135deg, #4ade80, #22c55e); color: white; }
         
         .tag-option {
-            padding: 8px 18px; 
+            padding: 10px 20px; 
             border-radius: 30px; 
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
             border: 1px solid var(--glass-border); 
             cursor: pointer;
             background: var(--glass-bg);
+            color: var(--text-primary);
             transition: all 0.2s;
         }
         .tag-option.selected {
@@ -316,7 +352,7 @@
         
         .role-badge {
             padding: 6px 14px; border-radius: 30px; font-size: 12px;
-            background: var(--glass-bg);
+            background: var(--glass-bg); font-weight: 600;
         }
         .role-admin { background: linear-gradient(135deg, #ffd700, #ffb300); color: #1a1a2e; }
         .role-partner { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
@@ -359,7 +395,6 @@
             .main-menu { flex-direction: column; text-align: center; }
         }
         
-        /* Анимация появления */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -421,7 +456,7 @@
                 <div class="logo-section">
                     <div class="logo-icon"><span style="color: #1a1a2e; font-size: 28px;">💎</span></div>
                     <div class="logo-text">
-                        <h1>Ozon.Баллы <span style="font-size: 14px; opacity: 0.8;">v<span id="appVersion">4.0.0</span></span></h1>
+                        <h1>Ozon.Баллы <span style="font-size: 14px; opacity: 0.8;">v<span id="appVersion">5.0.0</span></span></h1>
                         <p id="roleDisplay">Премиум система</p>
                     </div>
                 </div>
@@ -509,7 +544,7 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                                 <div><label>💵 Цена на Ozon</label><input type="number" id="productPrice" value="10000" required></div>
                                 <div><label>🔻 Скидка (%)</label><input type="number" id="discountPercent" value="10"></div>
-                                <div><label>💳 Клиент заплатит</label><input type="number" id="customerPayment" value="9000" required></div>
+                                <div><label>💳 Вы заплатите</label><input type="number" id="customerPayment" value="9000" required></div>
                             </div>
                             <p style="margin-top: 25px; font-size: 24px;">💎 Ваш доход: <strong id="yourIncome">0 ₽</strong></p>
                         </div>
@@ -526,14 +561,14 @@
                     <h2 style="font-size: 28px; margin-bottom: 30px;">📋 Заявки</h2>
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <select id="sortSelect" class="nav-btn" style="padding: 12px 20px;" onchange="renderOrders()">
+                        <select id="sortSelect" class="nav-btn" style="padding: 12px 20px; color: var(--text-primary); background: var(--glass-bg);" onchange="renderOrders()">
                             <option value="date-desc">Новые сначала</option>
                             <option value="date-asc">Старые сначала</option>
                             <option value="price-desc">Дорогие сначала</option>
                             <option value="income-desc">Выгодные сначала</option>
                         </select>
                         
-                        <select id="tagFilter" class="nav-btn" style="padding: 12px 20px;" onchange="renderOrders()">
+                        <select id="tagFilter" class="nav-btn" style="padding: 12px 20px; color: var(--text-primary); background: var(--glass-bg);" onchange="renderOrders()">
                             <option value="">Все теги</option>
                             <option value="vip">VIP</option>
                             <option value="urgent">Срочно</option>
@@ -572,7 +607,7 @@
                     
                     <h3 style="margin-top: 40px;">⚙️ Настройки</h3>
                     <div style="display: flex; gap: 20px; align-items: center;">
-                        <label>💱 Глобальный курс балла</label>
+                        <label>💱 Глобальный курс балла (₽ за балл)</label>
                         <input type="number" id="globalRateInput" value="0.85" step="0.01" style="width: 150px;">
                         <button class="btn btn-success" onclick="saveGlobalRate()">💾 Сохранить</button>
                     </div>
@@ -609,7 +644,7 @@
     </div>
 
     <script>
-        const APP_VERSION = '4.0.0';
+        const APP_VERSION = '5.0.0';
         const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/darikfasahov-design/ozon-bally2/refs/heads/main/index.html';
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwwhtBMRuMPyOho_lwrD8Bv5byZnIXpVq0SCr3a7hGmF34RbqV_lgLebZHChFmyx7p/exec';
         
@@ -874,6 +909,7 @@
                 globalRate = data.settings.globalRate || 0.85;
                 document.getElementById('homeGlobalRate').textContent = globalRate + ' ₽';
                 document.getElementById('globalRateInput').value = globalRate;
+                document.getElementById('pointRate').value = globalRate;
             } catch (e) {}
         }
         
@@ -883,6 +919,15 @@
                 const data = await res.json();
                 renderUsersList(data.users || []);
             } catch (e) {}
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('.');
+            if (parts.length === 3) {
+                return `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}`;
+            }
+            return dateStr;
         }
         
         function renderOrders() {
@@ -914,7 +959,7 @@
             filtered.forEach(order => {
                 const statusClass = order['Статус'] === 'Новая' ? 'status-new' : 
                                    order['Статус'] === 'В работе' ? 'status-process' : 'status-done';
-                const hasMessages = order['Сообщения'] && order['Сообщения'] !== '[]';
+                const hasMessages = order['Сообщения'] && order['Сообщения'] !== '[]' && order['Сообщения'] !== '';
                 
                 let actions = '';
                 if (order['Статус'] === 'Новая') {
@@ -930,9 +975,9 @@
                 
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td>${order['Дата создания'] || ''}</td>
+                    <td>${formatDate(order['Дата создания'])}</td>
                     <td>${order['Имя'] || ''}<br><small>${order['Контакт'] || ''}</small></td>
-                    <td>${order['Товар'] || ''}</td>
+                    <td><a href="${order['Ссылка Ozon'] || '#'}" target="_blank" class="product-link">${order['Товар'] || ''}</a></td>
                     <td>${renderTags(order['Теги'])}</td>
                     <td>${order['Цена Ozon'] || 0} ₽</td>
                     <td>${order['К оплате'] || 0} ₽</td>
@@ -977,11 +1022,36 @@
                 <div class="account-card" style="padding: 25px; margin-bottom: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h3>${a.name}</h3>
-                        <p style="font-size: 24px;">${a.balance} бал.</p>
+                        <p style="font-size: 24px;"><span id="balance_${a.id}">${a.balance}</span> бал.</p>
                     </div>
-                    <button class="btn-small btn-danger" onclick="deleteAccount('${a.id}')">🗑️ Удалить</button>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="number" id="add_${a.id}" placeholder="Добавить баллы" style="flex: 1;">
+                        <button class="btn-small btn-success" onclick="adjustBalance('${a.id}', 'add')">➕</button>
+                        <input type="number" id="sub_${a.id}" placeholder="Списать" style="flex: 1;">
+                        <button class="btn-small btn-danger" onclick="adjustBalance('${a.id}', 'sub')">➖</button>
+                        <button class="btn-small btn-danger" onclick="deleteAccount('${a.id}')">🗑️</button>
+                    </div>
                 </div>
             `).join('');
+        }
+        
+        async function adjustBalance(id, action) {
+            const input = document.getElementById(`${action}_${id}`);
+            const points = parseInt(input.value) || 0;
+            const account = accounts.find(a => a.id === id);
+            if (!account) return;
+            
+            if (action === 'add') {
+                account.balance += points;
+            } else {
+                if (account.balance < points) { alert('Недостаточно баллов!'); return; }
+                account.balance -= points;
+            }
+            
+            await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({ account }));
+            document.getElementById(`balance_${id}`).textContent = account.balance;
+            renderAccountSelect();
+            input.value = '';
         }
         
         function renderUsersList(users) {
@@ -1027,7 +1097,11 @@
             document.getElementById('chatOrderTitle').textContent = `Заявка: ${order['Товар']}`;
             document.getElementById('chatOrderInfo').textContent = `Клиент: ${order['Имя']} | ${order['Контакт']}`;
             
-            const messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
+            let messages = [];
+            try {
+                messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
+            } catch (e) { messages = []; }
+            
             const container = document.getElementById('chatMessages');
             
             if (messages.length === 0) {
@@ -1041,6 +1115,7 @@
                 `).join('');
             }
             
+            container.scrollTop = container.scrollHeight;
             document.getElementById('chatModal').style.display = 'flex';
         }
         
@@ -1056,7 +1131,11 @@
             const order = orders.find(o => o['ID заявки'] === currentChatOrderId);
             if (!order) return;
             
-            let messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
+            let messages = [];
+            try {
+                messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
+            } catch (e) { messages = []; }
+            
             messages.push({
                 sender: 'admin',
                 text: text,
@@ -1125,6 +1204,7 @@
             }));
             globalRate = rate;
             document.getElementById('homeGlobalRate').textContent = rate + ' ₽';
+            document.getElementById('pointRate').value = rate;
             alert('Курс сохранён!');
         }
         
@@ -1205,6 +1285,7 @@
                     productUrl: document.getElementById('productUrl').value,
                     productPrice: parseFloat(document.getElementById('productPrice').value) || 0,
                     pointsUsed: parseFloat(document.getElementById('pointsToUse')?.value) || 0,
+                    pointRate: globalRate,
                     discountPercent: parseFloat(document.getElementById('discountPercent').value) || 0,
                     customerPayment: parseFloat(document.getElementById('customerPayment').value) || 0,
                     ozonAccount: document.getElementById('ozonAccountSelect')?.value || '',
@@ -1229,8 +1310,10 @@
                 if (data.success) {
                     status.textContent = '✅ Заявка создана!';
                     document.getElementById('orderForm').reset();
+                    document.getElementById('productPrice').value = '10000';
                     selectedTags = [];
                     renderTagSelector();
+                    updateCalculation();
                     await loadOrders();
                     showPage('orders');
                 } else {
@@ -1263,6 +1346,7 @@
         window.saveGlobalRate = saveGlobalRate;
         window.showAddAccountModal = showAddAccountModal;
         window.deleteAccount = deleteAccount;
+        window.adjustBalance = adjustBalance;
         window.openChat = openChat;
         window.closeChat = closeChat;
         window.sendMessage = sendMessage;
