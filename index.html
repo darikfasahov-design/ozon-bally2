@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ozon.Баллы — Премиум система</title>
+    <title>Ozon.Баллы — Система заявок</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Анимированный фон */
         :root {
             --bg-color-1: #667eea;
             --bg-color-2: #764ba2;
@@ -78,14 +77,8 @@
                         radial-gradient(circle at 70% 30%, rgba(255,100,200,0.08) 0%, transparent 50%);
         }
         
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            position: relative; 
-            z-index: 1;
-        }
+        .container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
         
-        /* Стеклянные карточки */
         .main-menu, .content-card, .login-container, .chat-container, .account-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -116,174 +109,102 @@
         }
         .logo-icon:hover { transform: rotate(0deg) scale(1.05); }
         
-        .logo-text h1 { 
-            font-size: 28px; 
-            font-weight: 700; 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
+        .logo-text h1 { font-size: 28px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         
         .nav-menu { display: flex; gap: 10px; flex-wrap: wrap; }
         .nav-btn {
-            padding: 14px 28px; 
-            border-radius: 50px; 
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            color: var(--text-primary); 
-            font-weight: 600; 
-            font-size: 15px;
-            cursor: pointer; 
-            transition: all 0.3s;
+            padding: 14px 28px; border-radius: 50px; border: 1px solid var(--glass-border);
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            color: var(--text-primary); font-weight: 600; font-size: 15px;
+            cursor: pointer; transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .nav-btn:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            background: rgba(255,255,255,0.25);
-        }
+        .nav-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); background: rgba(255,255,255,0.25); }
         .nav-btn.active {
             background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-            border-color: transparent;
-            color: #1a1a2e;
+            border-color: transparent; color: #1a1a2e;
         }
         
         .nav-btn.admin-only { display: none; }
         .nav-btn.admin-only.visible { display: flex; }
         
-        .content-card {
-            border-radius: 40px;
-            padding: 40px;
-        }
-        
+        .content-card { border-radius: 40px; padding: 40px; }
         .page { display: none; }
         .page.active { display: block; }
         
         .login-container {
-            max-width: 450px; 
-            margin: 100px auto;
-            border-radius: 40px; 
-            padding: 50px 40px;
+            max-width: 450px; margin: 100px auto;
+            border-radius: 40px; padding: 50px 40px;
         }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 20px; }
         .form-group.full-width { grid-column: span 2; }
         
-        label { 
-            display: block; 
-            font-size: 15px; 
-            font-weight: 600; 
-            margin-bottom: 8px; 
-            color: var(--text-primary);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
+        label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         
         input, textarea, select {
-            width: 100%; 
-            padding: 16px 20px; 
-            font-size: 15px;
-            border: 1px solid var(--glass-border); 
-            border-radius: 20px;
-            background: var(--input-bg); 
-            backdrop-filter: blur(10px);
-            color: var(--text-primary);
-            transition: all 0.3s;
-            font-weight: 500;
+            width: 100%; padding: 16px 20px; font-size: 15px;
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            background: var(--input-bg); backdrop-filter: blur(10px);
+            color: var(--text-primary); transition: all 0.3s; font-weight: 500;
         }
         
-        select option {
-            background: var(--dropdown-bg);
-            color: var(--text-primary);
-        }
+        select option { background: var(--dropdown-bg); color: var(--text-primary); }
         
         input:focus, textarea:focus, select:focus {
-            outline: none; 
-            border-color: #ffd93d;
+            outline: none; border-color: #ffd93d;
             box-shadow: 0 0 0 4px rgba(255, 217, 61, 0.2);
         }
         
-        input::placeholder, textarea::placeholder {
-            color: rgba(255,255,255,0.6);
-        }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.6); }
         
         .btn {
             background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-            color: #1a1a2e; 
-            border: none; 
-            padding: 16px 32px;
-            font-size: 16px; 
-            font-weight: 700; 
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-            transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.2);
+            color: #1a1a2e; border: none; padding: 16px 32px;
+            font-size: 16px; font-weight: 700; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2);
         }
-        .btn:hover { 
-            transform: translateY(-3px) scale(1.02); 
-            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
-        }
+        .btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4); }
         
-        .btn-secondary { 
-            background: transparent; 
-            color: var(--text-primary); 
-            border: 2px solid var(--glass-border);
-            box-shadow: none;
-        }
+        .btn-secondary { background: transparent; color: var(--text-primary); border: 2px solid var(--glass-border); box-shadow: none; }
         .btn-success { background: linear-gradient(135deg, #4ade80, #22c55e); }
         .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
         .btn-warning { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
         .btn-small { padding: 8px 16px; font-size: 13px; }
         
-        .orders-table { 
-            width: 100%; 
-            border-collapse: collapse;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            overflow: hidden;
+        .orders-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border-radius: 20px; overflow: hidden;
         }
-        .orders-table th { 
-            text-align: left; 
-            padding: 18px; 
-            background: rgba(0,0,0,0.2);
-            font-weight: 600;
+        .orders-table th {
+            text-align: left; padding: 18px;
+            background: rgba(0,0,0,0.2); font-weight: 600;
             color: var(--text-primary);
         }
-        .orders-table td { 
-            padding: 12px 18px; 
-            border-bottom: 1px solid var(--glass-border);
+        .orders-table td {
+            padding: 12px 18px; border-bottom: 1px solid var(--glass-border);
             color: var(--text-primary);
         }
         .orders-table tr:hover { background: rgba(255,255,255,0.05); }
         
         .status-badge {
-            padding: 6px 14px; 
-            border-radius: 30px; 
-            font-size: 12px;
-            font-weight: 600; 
-            display: inline-block;
+            padding: 6px 14px; border-radius: 30px; font-size: 12px;
+            font-weight: 600; display: inline-block;
         }
         .status-new { background: rgba(255,193,7,0.3); color: #ffd93d; }
         .status-process { background: rgba(0,91,255,0.3); color: #6eb5ff; }
         .status-done { background: rgba(40,167,69,0.3); color: #4ade80; }
         
-        .product-link {
-            color: #ffd93d;
-            text-decoration: none;
-            font-weight: 500;
-        }
+        .product-link { color: #ffd93d; text-decoration: none; font-weight: 500; }
         .product-link:hover { text-decoration: underline; }
         
         .tag {
-            display: inline-block; 
-            padding: 4px 12px; 
-            border-radius: 30px;
-            font-size: 11px; 
-            font-weight: 700; 
-            margin-right: 6px;
-            margin-bottom: 4px;
-            color: #1a1a2e;
+            display: inline-block; padding: 4px 12px; border-radius: 30px;
+            font-size: 11px; font-weight: 700; margin-right: 6px;
+            margin-bottom: 4px; color: #1a1a2e;
         }
         .tag-vip { background: linear-gradient(135deg, #ffd700, #ffb300); }
         .tag-urgent { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
@@ -292,20 +213,14 @@
         .tag-new { background: linear-gradient(135deg, #4ade80, #22c55e); color: white; }
         
         .tag-option {
-            padding: 10px 20px; 
-            border-radius: 30px; 
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--glass-border); 
-            cursor: pointer;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            transition: all 0.2s;
+            padding: 10px 20px; border-radius: 30px; font-size: 14px;
+            font-weight: 600; border: 1px solid var(--glass-border);
+            cursor: pointer; background: var(--glass-bg);
+            color: var(--text-primary); transition: all 0.2s;
         }
         .tag-option.selected {
             background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-            color: #1a1a2e;
-            border-color: transparent;
+            color: #1a1a2e; border-color: transparent;
         }
         
         .chat-modal {
@@ -329,7 +244,7 @@
         .message {
             max-width: 80%; padding: 12px 18px; border-radius: 20px;
         }
-        .message-admin {
+        .message-admin, .message-partner {
             background: linear-gradient(135deg, #ff6b6b, #ffd93d);
             color: #1a1a2e; align-self: flex-end;
         }
@@ -366,11 +281,8 @@
         .theme-toggle:hover { transform: rotate(20deg); }
         
         .discount-block, .points-block {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 30px; 
-            padding: 30px; 
-            margin: 30px 0;
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border-radius: 30px; padding: 30px; margin: 30px 0;
             border: 1px solid var(--glass-border);
         }
         
@@ -387,6 +299,13 @@
             display: flex; align-items: center; gap: 10px;
             padding: 8px 20px; background: var(--glass-bg);
             border-radius: 50px; border: 1px solid var(--glass-border);
+        }
+        
+        .hint {
+            background: rgba(255,217,61,0.2);
+            border-left: 4px solid #ffd93d;
+            padding: 12px 18px; border-radius: 12px;
+            margin-bottom: 20px; font-size: 14px;
         }
         
         @media (max-width: 768px) {
@@ -412,40 +331,21 @@
     <!-- Экран логина -->
     <div id="loginScreen" class="login-container">
         <h2 style="text-align: center; margin-bottom: 30px; font-size: 28px;">🔐 Вход в Ozon.Баллы</h2>
-        <div class="form-group">
-            <label>👤 Логин</label>
-            <input type="text" id="loginUsername" placeholder="Введите логин">
-        </div>
-        <div class="form-group">
-            <label>🔑 Пароль</label>
-            <input type="password" id="loginPassword" placeholder="Введите пароль" onkeypress="if(event.key==='Enter')login()">
-        </div>
+        <div class="form-group"><label>👤 Логин</label><input type="text" id="loginUsername" placeholder="Введите логин"></div>
+        <div class="form-group"><label>🔑 Пароль</label><input type="password" id="loginPassword" placeholder="Введите пароль" onkeypress="if(event.key==='Enter')login()"></div>
         <button class="btn" onclick="login()" style="width: 100%;">Войти</button>
-        <p style="text-align: center; margin-top: 20px;">
-            Нет аккаунта? <a href="#" onclick="showRegister()" style="color: #ffd93d;">Зарегистрироваться</a>
-        </p>
+        <p style="text-align: center; margin-top: 20px;">Нет аккаунта? <a href="#" onclick="showRegister()" style="color: #ffd93d;">Зарегистрироваться</a></p>
         <div id="loginStatus" style="margin-top: 16px; text-align: center;"></div>
     </div>
 
     <!-- Экран регистрации -->
     <div id="registerScreen" class="login-container" style="display: none;">
         <h2 style="text-align: center; margin-bottom: 30px; font-size: 28px;">📝 Регистрация</h2>
-        <div class="form-group">
-            <label>👤 Логин</label>
-            <input type="text" id="regUsername" placeholder="Придумайте логин">
-        </div>
-        <div class="form-group">
-            <label>🔑 Пароль</label>
-            <input type="password" id="regPassword" placeholder="Придумайте пароль">
-        </div>
-        <div class="form-group">
-            <label>🔑 Подтвердите пароль</label>
-            <input type="password" id="regConfirmPassword" placeholder="Повторите пароль">
-        </div>
+        <div class="form-group"><label>👤 Логин</label><input type="text" id="regUsername" placeholder="Придумайте логин"></div>
+        <div class="form-group"><label>🔑 Пароль</label><input type="password" id="regPassword" placeholder="Придумайте пароль"></div>
+        <div class="form-group"><label>🔑 Подтвердите пароль</label><input type="password" id="regConfirmPassword" placeholder="Повторите пароль"></div>
         <button class="btn" onclick="register()" style="width: 100%;">Зарегистрироваться</button>
-        <p style="text-align: center; margin-top: 20px;">
-            Уже есть аккаунт? <a href="#" onclick="showLogin()" style="color: #ffd93d;">Войти</a>
-        </p>
+        <p style="text-align: center; margin-top: 20px;">Уже есть аккаунт? <a href="#" onclick="showLogin()" style="color: #ffd93d;">Войти</a></p>
         <div id="registerStatus" style="margin-top: 16px; text-align: center;"></div>
     </div>
 
@@ -456,7 +356,7 @@
                 <div class="logo-section">
                     <div class="logo-icon"><span style="color: #1a1a2e; font-size: 28px;">💎</span></div>
                     <div class="logo-text">
-                        <h1>Ozon.Баллы <span style="font-size: 14px; opacity: 0.8;">v<span id="appVersion">5.0.0</span></span></h1>
+                        <h1>Ozon.Баллы <span style="font-size: 14px; opacity: 0.8;">v<span id="appVersion">6.0.0</span></span></h1>
                         <p id="roleDisplay">Премиум система</p>
                     </div>
                 </div>
@@ -490,26 +390,23 @@
                             <p style="font-size: 42px; font-weight: 700;" id="homeTotalOrders">0</p>
                         </div>
                         <div style="padding: 30px; background: var(--glass-bg); border-radius: 30px; border: 1px solid var(--glass-border);">
-                            <h3>💰 Общий доход</h3>
+                            <h3>💰 Общая прибыль</h3>
                             <p style="font-size: 42px; font-weight: 700; color: #4ade80;" id="homeTotalIncome">0 ₽</p>
-                        </div>
-                        <div style="padding: 30px; background: var(--glass-bg); border-radius: 30px; border: 1px solid var(--glass-border);">
-                            <h3>💱 Курс балла</h3>
-                            <p style="font-size: 42px; font-weight: 700; color: #ffd93d;" id="homeGlobalRate">0.85 ₽</p>
                         </div>
                     </div>
                     
                     <h3 style="margin: 30px 0 20px;">🏷️ Статистика по тегам</h3>
                     <div id="tagStats" style="display: flex; gap: 15px; flex-wrap: wrap;"></div>
-                    
-                    <div style="margin-top: 30px;">
-                        <button class="btn btn-warning" onclick="checkForUpdates(true)">🔄 Проверить обновления</button>
-                    </div>
                 </div>
 
                 <!-- Создание заявки -->
                 <div id="createPage" class="page">
-                    <h2 style="font-size: 28px; margin-bottom: 30px;">📝 Новая заявка</h2>
+                    <h2 style="font-size: 28px; margin-bottom: 20px;">📝 Новая заявка</h2>
+                    
+                    <div class="hint">
+                        💡 <strong>Рекомендация:</strong> Оптимальная скидка для клиента — не более 10%. Это позволяет сохранить выгодные условия для всех сторон.
+                    </div>
+                    
                     <form id="orderForm">
                         <div class="form-grid">
                             <div class="form-group"><label>👤 Имя клиента</label><input type="text" id="customerName" required></div>
@@ -525,28 +422,32 @@
                         </div>
                         
                         <div id="pointsBlock" class="points-block" style="display: none;">
-                            <h3>💎 Использование баллов</h3>
+                            <h3>💎 Использование баллов (1 балл = 1 ₽)</h3>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
                                     <label>💳 Аккаунт Ozon</label>
                                     <select id="ozonAccountSelect"></select>
                                 </div>
                                 <div>
-                                    <label>💎 Баллы к списанию</label>
+                                    <label>💎 Баллы к списанию (макс. 90% от цены)</label>
                                     <input type="number" id="pointsToUse" value="0" min="0">
                                 </div>
                             </div>
                             <p style="margin-top: 15px;">Доступно: <strong id="selectedAccountBalance">0</strong> баллов</p>
+                            <p style="margin-top: 10px; font-size: 14px;" id="pointsMaxInfo"></p>
                         </div>
                         
                         <div class="discount-block">
-                            <h3>💰 Расчёт стоимости</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                            <h3>💰 Расчёт</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div><label>💵 Цена на Ozon</label><input type="number" id="productPrice" value="10000" required></div>
-                                <div><label>🔻 Скидка (%)</label><input type="number" id="discountPercent" value="10"></div>
-                                <div><label>💳 Вы заплатите</label><input type="number" id="customerPayment" value="9000" required></div>
+                                <div><label>🔻 Скидка клиенту (%)</label><input type="number" id="discountPercent" value="10" min="0" max="100"></div>
                             </div>
-                            <p style="margin-top: 25px; font-size: 24px;">💎 Ваш доход: <strong id="yourIncome">0 ₽</strong></p>
+                            <div style="margin-top: 25px; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 20px;">
+                                <p style="font-size: 18px;">🏷️ Скидка клиенту: <strong id="clientDiscount">0 ₽</strong></p>
+                                <p style="font-size: 18px; margin-top: 10px;">💳 Клиент заплатит: <strong id="clientPayment">0 ₽</strong></p>
+                                <p style="font-size: 22px; margin-top: 20px; color: #4ade80;" id="profitDisplay"></p>
+                            </div>
                         </div>
                         
                         <div class="form-group full-width"><label>💭 Комментарий</label><textarea id="orderComment"></textarea></div>
@@ -561,14 +462,12 @@
                     <h2 style="font-size: 28px; margin-bottom: 30px;">📋 Заявки</h2>
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <select id="sortSelect" class="nav-btn" style="padding: 12px 20px; color: var(--text-primary); background: var(--glass-bg);" onchange="renderOrders()">
+                        <select id="sortSelect" class="nav-btn" style="padding: 12px 20px;" onchange="renderOrders()">
                             <option value="date-desc">Новые сначала</option>
                             <option value="date-asc">Старые сначала</option>
-                            <option value="price-desc">Дорогие сначала</option>
-                            <option value="income-desc">Выгодные сначала</option>
                         </select>
                         
-                        <select id="tagFilter" class="nav-btn" style="padding: 12px 20px; color: var(--text-primary); background: var(--glass-bg);" onchange="renderOrders()">
+                        <select id="tagFilter" class="nav-btn" style="padding: 12px 20px;" onchange="renderOrders()">
                             <option value="">Все теги</option>
                             <option value="vip">VIP</option>
                             <option value="urgent">Срочно</option>
@@ -584,7 +483,9 @@
                     <div class="orders-table-container">
                         <table class="orders-table" id="ordersTable">
                             <thead>
-                                <tr><th>Дата</th><th>Клиент</th><th>Товар</th><th>Теги</th><th>Цена</th><th>Оплата</th><th>Доход</th><th>Чат</th><th>Статус</th><th>Действия</th></tr>
+                                <tr>
+                                    <th>Создал</th><th>Товар</th><th>Дата</th><th>Скидка клиенту</th><th>Цена Ozon</th><th>Чат</th><th>Статус</th><th>Действия</th>
+                                </tr>
                             </thead>
                             <tbody id="ordersTableBody"></tbody>
                         </table>
@@ -604,13 +505,6 @@
                     
                     <h3>👥 Пользователи</h3>
                     <div id="usersList"></div>
-                    
-                    <h3 style="margin-top: 40px;">⚙️ Настройки</h3>
-                    <div style="display: flex; gap: 20px; align-items: center;">
-                        <label>💱 Глобальный курс балла (₽ за балл)</label>
-                        <input type="number" id="globalRateInput" value="0.85" step="0.01" style="width: 150px;">
-                        <button class="btn btn-success" onclick="saveGlobalRate()">💾 Сохранить</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -644,7 +538,7 @@
     </div>
 
     <script>
-        const APP_VERSION = '5.0.0';
+        const APP_VERSION = '6.0.0';
         const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/darikfasahov-design/ozon-bally2/refs/heads/main/index.html';
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwwhtBMRuMPyOho_lwrD8Bv5byZnIXpVq0SCr3a7hGmF34RbqV_lgLebZHChFmyx7p/exec';
         
@@ -652,7 +546,6 @@
         let authToken = null;
         let orders = [];
         let accounts = [];
-        let globalRate = 0.85;
         let selectedTags = [];
         let currentChatOrderId = null;
         
@@ -678,7 +571,6 @@
             const toggle = document.getElementById('themeToggle');
             const currentTheme = html.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             html.setAttribute('data-theme', newTheme);
             toggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
             localStorage.setItem('theme', newTheme);
@@ -694,17 +586,13 @@
         function renderTagSelector() {
             const container = document.getElementById('tagSelector');
             container.innerHTML = AVAILABLE_TAGS.map(tag => `
-                <div class="tag-option ${selectedTags.includes(tag.id) ? 'selected' : ''}" 
-                     onclick="toggleTag('${tag.id}')">${tag.name}</div>
+                <div class="tag-option ${selectedTags.includes(tag.id) ? 'selected' : ''}" onclick="toggleTag('${tag.id}')">${tag.name}</div>
             `).join('');
         }
         
         function toggleTag(tagId) {
-            if (selectedTags.includes(tagId)) {
-                selectedTags = selectedTags.filter(t => t !== tagId);
-            } else {
-                selectedTags.push(tagId);
-            }
+            if (selectedTags.includes(tagId)) selectedTags = selectedTags.filter(t => t !== tagId);
+            else selectedTags.push(tagId);
             renderTagSelector();
         }
         
@@ -758,11 +646,7 @@
             const password = document.getElementById('loginPassword').value;
             const status = document.getElementById('loginStatus');
             
-            if (!username || !password) {
-                status.textContent = '❌ Введите логин и пароль';
-                return;
-            }
-            
+            if (!username || !password) { status.textContent = '❌ Введите логин и пароль'; return; }
             status.textContent = '⏳ Вход...';
             
             try {
@@ -774,17 +658,13 @@
                     currentUser = { username: data.username, role: data.role, id: data.userId };
                     localStorage.setItem('authToken', authToken);
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
-                    
                     initializeApp();
                 } else {
                     status.textContent = '❌ ' + (data.error || 'Ошибка входа');
                 }
-            } catch (e) {
-                status.textContent = '❌ Ошибка соединения';
-            }
+            } catch (e) { status.textContent = '❌ Ошибка соединения'; }
         }
         
         async function register() {
@@ -793,16 +673,8 @@
             const confirm = document.getElementById('regConfirmPassword').value;
             const status = document.getElementById('registerStatus');
             
-            if (!username || !password) {
-                status.textContent = '❌ Заполните все поля';
-                return;
-            }
-            
-            if (password !== confirm) {
-                status.textContent = '❌ Пароли не совпадают';
-                return;
-            }
-            
+            if (!username || !password) { status.textContent = '❌ Заполните все поля'; return; }
+            if (password !== confirm) { status.textContent = '❌ Пароли не совпадают'; return; }
             status.textContent = '⏳ Регистрация...';
             
             try {
@@ -815,16 +687,12 @@
                 } else {
                     status.textContent = '❌ ' + (data.error || 'Ошибка');
                 }
-            } catch (e) {
-                status.textContent = '❌ Ошибка соединения';
-            }
+            } catch (e) { status.textContent = '❌ Ошибка соединения'; }
         }
         
         function logout() {
-            authToken = null;
-            currentUser = null;
-            localStorage.clear();
-            showLogin();
+            authToken = null; currentUser = null;
+            localStorage.clear(); showLogin();
         }
         
         async function checkAuth() {
@@ -846,7 +714,6 @@
                     }
                 } catch (e) {}
             }
-            
             showLogin();
         }
         
@@ -861,9 +728,7 @@
             
             const roleBadge = document.getElementById('userRoleBadge');
             roleBadge.textContent = currentUser.role;
-            roleBadge.className = 'role-badge ' + 
-                (currentUser.role === 'admin' ? 'role-admin' : 
-                 currentUser.role === 'partner' ? 'role-partner' : '');
+            roleBadge.className = 'role-badge ' + (currentUser.role === 'admin' ? 'role-admin' : currentUser.role === 'partner' ? 'role-partner' : '');
             
             if (currentUser.role === 'admin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.add('visible'));
@@ -875,10 +740,8 @@
             }
             
             renderTagSelector();
-            await loadSettings();
             await loadOrders();
             if (currentUser.role === 'admin') await loadUsers();
-            
             updateCalculation();
         }
         
@@ -902,17 +765,6 @@
             } catch (e) {}
         }
         
-        async function loadSettings() {
-            try {
-                const res = await fetch(SCRIPT_URL + '?action=getSettings&token=' + authToken);
-                const data = await res.json();
-                globalRate = data.settings.globalRate || 0.85;
-                document.getElementById('homeGlobalRate').textContent = globalRate + ' ₽';
-                document.getElementById('globalRateInput').value = globalRate;
-                document.getElementById('pointRate').value = globalRate;
-            } catch (e) {}
-        }
-        
         async function loadUsers() {
             try {
                 const res = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken);
@@ -924,9 +776,7 @@
         function formatDate(dateStr) {
             if (!dateStr) return '';
             const parts = dateStr.split('.');
-            if (parts.length === 3) {
-                return `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}`;
-            }
+            if (parts.length === 3) return `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}`;
             return dateStr;
         }
         
@@ -949,41 +799,37 @@
                 switch(sortType) {
                     case 'date-desc': return new Date(b['Дата создания']?.split('.').reverse()) - new Date(a['Дата создания']?.split('.').reverse());
                     case 'date-asc': return new Date(a['Дата создания']?.split('.').reverse()) - new Date(b['Дата создания']?.split('.').reverse());
-                    case 'price-desc': return (b['Цена Ozon'] || 0) - (a['Цена Ozon'] || 0);
-                    case 'income-desc': return (b['Доход'] || 0) - (a['Доход'] || 0);
                     default: return 0;
                 }
             });
             
             tbody.innerHTML = '';
             filtered.forEach(order => {
-                const statusClass = order['Статус'] === 'Новая' ? 'status-new' : 
-                                   order['Статус'] === 'В работе' ? 'status-process' : 'status-done';
+                const status = order['Статус'] || 'Новая';
+                const statusClass = status === 'Новая' ? 'status-new' : status === 'В работе' ? 'status-process' : 'status-done';
                 const hasMessages = order['Сообщения'] && order['Сообщения'] !== '[]' && order['Сообщения'] !== '';
                 
                 let actions = '';
-                if (order['Статус'] === 'Новая') {
+                if (status === 'Новая') {
                     actions = `<button class="btn-small btn-success" onclick="updateOrderStatus('${order['ID заявки']}', 'process')">⚡</button>
                                <button class="btn-small btn-success" onclick="updateOrderStatus('${order['ID заявки']}', 'done')">✅</button>`;
-                } else if (order['Статус'] === 'В работе') {
+                } else if (status === 'В работе') {
                     actions = `<button class="btn-small btn-success" onclick="updateOrderStatus('${order['ID заявки']}', 'done')">✅</button>`;
                 }
                 
-                if (currentUser.role === 'admin' || (currentUser.role === 'user' && order['Статус'] === 'Новая')) {
+                if (currentUser.role === 'admin' || (currentUser.role === 'user' && status === 'Новая')) {
                     actions += `<button class="btn-small btn-danger" onclick="deleteOrder('${order['ID заявки']}')">🗑️</button>`;
                 }
                 
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td>${formatDate(order['Дата создания'])}</td>
-                    <td>${order['Имя'] || ''}<br><small>${order['Контакт'] || ''}</small></td>
+                    <td>${order['Создал (User ID)'] || '—'}</td>
                     <td><a href="${order['Ссылка Ozon'] || '#'}" target="_blank" class="product-link">${order['Товар'] || ''}</a></td>
-                    <td>${renderTags(order['Теги'])}</td>
+                    <td>${formatDate(order['Дата создания'])}</td>
+                    <td>${order['Скидка клиенту'] || 0} ₽</td>
                     <td>${order['Цена Ozon'] || 0} ₽</td>
-                    <td>${order['К оплате'] || 0} ₽</td>
-                    <td>${Math.round(order['Доход'] || 0)} ₽</td>
                     <td><button class="btn-small ${hasMessages ? 'btn-warning' : 'btn-secondary'}" onclick="openChat('${order['ID заявки']}')">💬 ${hasMessages ? '●' : ''}</button></td>
-                    <td><span class="status-badge ${statusClass}">${order['Статус'] || 'Новая'}</span></td>
+                    <td><span class="status-badge ${statusClass}">${status}</span></td>
                     <td>${actions}</td>
                 `;
             });
@@ -994,7 +840,7 @@
         
         function updateStats() {
             document.getElementById('homeTotalOrders').textContent = orders.length;
-            const totalIncome = orders.reduce((sum, o) => sum + (parseFloat(o['Доход']) || 0), 0);
+            const totalIncome = orders.reduce((sum, o) => sum + (parseFloat(o['Прибыль']) || 0), 0);
             document.getElementById('homeTotalIncome').textContent = Math.round(totalIncome) + ' ₽';
         }
         
@@ -1007,11 +853,13 @@
             select.onchange = () => {
                 const opt = select.selectedOptions[0];
                 document.getElementById('selectedAccountBalance').textContent = opt?.dataset.balance || '0';
+                updateCalculation();
             };
             
             if (accounts.length > 0) {
                 document.getElementById('selectedAccountBalance').textContent = accounts[0].balance;
             }
+            updateCalculation();
         }
         
         function renderAccountsList() {
@@ -1025,7 +873,7 @@
                         <p style="font-size: 24px;"><span id="balance_${a.id}">${a.balance}</span> бал.</p>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <input type="number" id="add_${a.id}" placeholder="Добавить баллы" style="flex: 1;">
+                        <input type="number" id="add_${a.id}" placeholder="Добавить" style="flex: 1;">
                         <button class="btn-small btn-success" onclick="adjustBalance('${a.id}', 'add')">➕</button>
                         <input type="number" id="sub_${a.id}" placeholder="Списать" style="flex: 1;">
                         <button class="btn-small btn-danger" onclick="adjustBalance('${a.id}', 'sub')">➖</button>
@@ -1041,12 +889,8 @@
             const account = accounts.find(a => a.id === id);
             if (!account) return;
             
-            if (action === 'add') {
-                account.balance += points;
-            } else {
-                if (account.balance < points) { alert('Недостаточно баллов!'); return; }
-                account.balance -= points;
-            }
+            if (action === 'add') account.balance += points;
+            else { if (account.balance < points) { alert('Недостаточно баллов!'); return; } account.balance -= points; }
             
             await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({ account }));
             document.getElementById(`balance_${id}`).textContent = account.balance;
@@ -1074,22 +918,41 @@
         function updateCalculation() {
             const price = parseFloat(document.getElementById('productPrice').value) || 0;
             const percent = parseFloat(document.getElementById('discountPercent').value) || 0;
-            let payment = parseFloat(document.getElementById('customerPayment').value) || 0;
+            const pointsUsed = parseFloat(document.getElementById('pointsToUse')?.value) || 0;
             
-            const discount = Math.round(price * percent / 100);
-            const minPayment = Math.max(0, price - discount);
+            const maxPoints = Math.floor(price * 0.9);
+            const pointsInfo = document.getElementById('pointsMaxInfo');
+            if (pointsInfo) pointsInfo.textContent = `Максимум баллов: ${maxPoints} (90% от цены)`;
             
-            if (payment < minPayment) {
-                payment = minPayment;
-                document.getElementById('customerPayment').value = payment;
+            const clientDiscount = Math.round(price * percent / 100);
+            const clientPayment = price - clientDiscount;
+            
+            document.getElementById('clientDiscount').textContent = clientDiscount + ' ₽';
+            document.getElementById('clientPayment').textContent = clientPayment + ' ₽';
+            
+            const profitDisplay = document.getElementById('profitDisplay');
+            if (currentUser.role === 'admin' || currentUser.role === 'partner') {
+                const profit = price - pointsUsed - clientDiscount;
+                profitDisplay.innerHTML = `💎 Ваша чистая прибыль: <strong>${profit} ₽</strong>`;
+            } else {
+                profitDisplay.innerHTML = '';
             }
-            
-            const income = payment - (price - discount);
-            document.getElementById('yourIncome').textContent = Math.round(income) + ' ₽';
         }
         
         // ========== ЧАТ ==========
-        function openChat(orderId) {
+        async function loadMessages(orderId) {
+            try {
+                const res = await fetch(SCRIPT_URL + '?action=getMessages&token=' + authToken + '&orderId=' + orderId);
+                const data = await res.json();
+                return data.messages || [];
+            } catch (e) { return []; }
+        }
+        
+        async function saveMessage(orderId, message) {
+            await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({ orderId, message }));
+        }
+        
+        async function openChat(orderId) {
             const order = orders.find(o => o['ID заявки'] === orderId);
             if (!order) return;
             
@@ -1097,19 +960,15 @@
             document.getElementById('chatOrderTitle').textContent = `Заявка: ${order['Товар']}`;
             document.getElementById('chatOrderInfo').textContent = `Клиент: ${order['Имя']} | ${order['Контакт']}`;
             
-            let messages = [];
-            try {
-                messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
-            } catch (e) { messages = []; }
-            
+            const messages = await loadMessages(orderId);
             const container = document.getElementById('chatMessages');
             
             if (messages.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 20px;">Нет сообщений</div>';
             } else {
                 container.innerHTML = messages.map(msg => `
-                    <div class="message ${msg.sender === 'admin' ? 'message-admin' : 'message-client'}">
-                        <div>${msg.text}</div>
+                    <div class="message ${msg.senderRole === 'admin' || msg.senderRole === 'partner' ? 'message-admin' : 'message-client'}">
+                        <div><strong>${msg.senderName}:</strong> ${msg.text}</div>
                         <div class="message-time">${msg.time}</div>
                     </div>
                 `).join('');
@@ -1128,28 +987,18 @@
             const text = input.value.trim();
             if (!text || !currentChatOrderId) return;
             
-            const order = orders.find(o => o['ID заявки'] === currentChatOrderId);
-            if (!order) return;
-            
-            let messages = [];
-            try {
-                messages = order['Сообщения'] ? JSON.parse(order['Сообщения']) : [];
-            } catch (e) { messages = []; }
-            
-            messages.push({
-                sender: 'admin',
+            const message = {
+                senderId: currentUser.id,
+                senderName: currentUser.username,
+                senderRole: currentUser.role,
                 text: text,
                 time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
-            });
+            };
             
-            await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({
-                orderId: currentChatOrderId,
-                updates: { 'Сообщения': JSON.stringify(messages) }
-            }));
-            
-            order['Сообщения'] = JSON.stringify(messages);
-            openChat(currentChatOrderId);
+            await saveMessage(currentChatOrderId, message);
+            await openChat(currentChatOrderId);
             input.value = '';
+            renderOrders();
         }
         
         function closeChat() {
@@ -1176,7 +1025,6 @@
             const doneOrders = orders.filter(o => o['Статус'] === 'Выполнена');
             if (!doneOrders.length) { alert('Нет выполненных заявок'); return; }
             if (!confirm(`Удалить ${doneOrders.length} заявок?`)) return;
-            
             for (const o of doneOrders) {
                 await fetch(SCRIPT_URL + '?action=deleteOrder&token=' + authToken + '&data=' + JSON.stringify({ orderId: o['ID заявки'] }));
             }
@@ -1185,9 +1033,7 @@
         
         async function updateUserRole(userId) {
             const role = document.getElementById(`role_${userId}`).value;
-            await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({
-                userId, updates: { role }
-            }));
+            await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({ userId, updates: { role } }));
             await loadUsers();
         }
         
@@ -1195,17 +1041,6 @@
             if (!confirm('Удалить пользователя?')) return;
             await fetch(SCRIPT_URL + '?action=deleteUser&token=' + authToken + '&data=' + JSON.stringify({ userId }));
             await loadUsers();
-        }
-        
-        async function saveGlobalRate() {
-            const rate = parseFloat(document.getElementById('globalRateInput').value) || 0.85;
-            await fetch(SCRIPT_URL + '?action=saveSettings&token=' + authToken + '&data=' + JSON.stringify({
-                settings: { globalRate: rate }
-            }));
-            globalRate = rate;
-            document.getElementById('homeGlobalRate').textContent = rate + ' ₽';
-            document.getElementById('pointRate').value = rate;
-            alert('Курс сохранён!');
         }
         
         function showAddAccountModal() {
@@ -1245,9 +1080,7 @@
         }
         
         function applyUpdate() {
-            if ('caches' in window) {
-                caches.keys().then(names => names.forEach(n => caches.delete(n)));
-            }
+            if ('caches' in window) caches.keys().then(names => names.forEach(n => caches.delete(n)));
             location.reload(true);
         }
         
@@ -1276,6 +1109,12 @@
                 e.preventDefault();
                 const status = document.getElementById('formStatus');
                 
+                const price = parseFloat(document.getElementById('productPrice').value) || 0;
+                const percent = parseFloat(document.getElementById('discountPercent').value) || 0;
+                const pointsUsed = parseFloat(document.getElementById('pointsToUse')?.value) || 0;
+                const clientDiscount = Math.round(price * percent / 100);
+                const profit = (currentUser.role === 'admin' || currentUser.role === 'partner') ? price - pointsUsed - clientDiscount : 0;
+                
                 const order = {
                     id: Date.now().toString(),
                     date: new Date().toLocaleDateString('ru-RU'),
@@ -1283,18 +1122,19 @@
                     customerContact: document.getElementById('customerContact').value,
                     productName: document.getElementById('productName').value,
                     productUrl: document.getElementById('productUrl').value,
-                    productPrice: parseFloat(document.getElementById('productPrice').value) || 0,
-                    pointsUsed: parseFloat(document.getElementById('pointsToUse')?.value) || 0,
-                    pointRate: globalRate,
-                    discountPercent: parseFloat(document.getElementById('discountPercent').value) || 0,
-                    customerPayment: parseFloat(document.getElementById('customerPayment').value) || 0,
+                    productPrice: price,
+                    pointsUsed: pointsUsed,
+                    discountPercent: percent,
+                    clientDiscount: clientDiscount,
+                    clientPayment: price - clientDiscount,
+                    profit: profit,
                     ozonAccount: document.getElementById('ozonAccountSelect')?.value || '',
                     deliveryAddress: document.getElementById('deliveryAddress').value,
                     comment: document.getElementById('orderComment').value,
                     status: 'new',
-                    income: parseFloat(document.getElementById('yourIncome').textContent) || 0,
                     tags: selectedTags,
-                    messages: []
+                    createdBy: currentUser.id,
+                    createdByName: currentUser.username
                 };
                 
                 if (!order.customerName || !order.productName || !order.productUrl) {
@@ -1321,8 +1161,9 @@
                 }
             });
             
-            ['productPrice', 'discountPercent', 'customerPayment'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateCalculation);
+            ['productPrice', 'discountPercent', 'pointsToUse'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateCalculation);
             });
             
             setTimeout(() => checkForUpdates(), 3000);
@@ -1343,7 +1184,6 @@
         window.deleteAllDone = deleteAllDone;
         window.updateUserRole = updateUserRole;
         window.deleteUser = deleteUser;
-        window.saveGlobalRate = saveGlobalRate;
         window.showAddAccountModal = showAddAccountModal;
         window.deleteAccount = deleteAccount;
         window.adjustBalance = adjustBalance;
@@ -1355,6 +1195,7 @@
         window.applyUpdate = applyUpdate;
         window.dismissUpdate = dismissUpdate;
         window.renderOrders = renderOrders;
+        window.updateCalculation = updateCalculation;
     </script>
 </body>
 </html>
