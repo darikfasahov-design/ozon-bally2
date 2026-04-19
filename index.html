@@ -6,7 +6,6 @@
     <title>Ozon.Баллы — Полная система</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ВСЕ ВАШИ СТИЛИ ОСТАЮТСЯ ТЕМИ ЖЕ */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; }
         
         :root {
@@ -124,10 +123,6 @@
         .setting-option:hover { transform: scale(1.05); } .setting-option.active { background: var(--primary); color: white; }
         
         .order-card { border-left: 4px solid var(--primary); } .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .order-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-        .tag { font-size: 0.7rem; padding: 4px 10px; border-radius: 40px; background: rgba(255,255,255,0.15); font-weight: 500; text-transform: uppercase; transition: transform 0.2s; }
-        .tag:hover { transform: scale(1.05); } .tag.vip { background: var(--vip); color: white; } .tag.urgent { background: var(--danger); color: white; }
-        .tag.new { background: var(--success); color: white; } .tag.problem { background: var(--warning); color: #1a1a2e; }
         .price-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin: 6px 0; } .profit { color: var(--success); font-weight: 700; }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing); } .full-width { grid-column: span 2; }
@@ -251,10 +246,10 @@
             <!-- ВКЛАДКА ЗАЯВКИ -->
             <div id="tabOrders">
                 <div class="flex-between mb-4"><h2>📦 Заявки</h2><button id="goToCreateBtn"><i class="fas fa-plus"></i> Создать</button></div>
+                <!-- Фильтр только по статусу (теги удалены) -->
                 <div class="flex flex-wrap" style="gap:10px; margin-bottom:20px;">
-                    <select id="filterTag" style="flex:1;"><option value="">Все теги</option><option value="VIP">VIP</option><option value="Срочно">Срочно</option><option value="Проблемный">Проблемный</option><option value="Постоянный">Постоянный</option><option value="Новый">Новый</option></select>
                     <select id="filterStatus" style="flex:1;"><option value="">Все статусы</option><option value="В ожидании">В ожидании</option><option value="В работе">В работе</option><option value="Завершено">Завершено</option></select>
-                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i></button>
+                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i> Сброс</button>
                 </div>
                 <div id="ordersContainer" class="orders-container"></div>
             </div>
@@ -277,17 +272,6 @@
                             <div class="photo-upload-area" id="photoUploadArea"><i class="fas fa-cloud-upload-alt"></i><p>Нажмите или перетащите</p></div>
                             <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
                             <div class="photos-preview" id="photosPreview"></div>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label>🏷️ Теги</label>
-                            <div class="flex flex-wrap" id="createTagsContainer">
-                                <button type="button" class="tag-option secondary" data-tag="VIP">VIP</button>
-                                <button type="button" class="tag-option secondary" data-tag="Срочно">Срочно</button>
-                                <button type="button" class="tag-option secondary" data-tag="Проблемный">Проблемный</button>
-                                <button type="button" class="tag-option secondary" data-tag="Постоянный">Постоянный</button>
-                                <button type="button" class="tag-option secondary" data-tag="Новый">Новый</button>
-                            </div>
                         </div>
                         
                         <div id="createPointsBlock" style="display:none;">
@@ -314,7 +298,7 @@
                     </form>
                 </div>
             </div>
-            <!-- ВКЛАДКА ЧАТ - ИСПРАВЛЕННАЯ ВЕРСИЯ -->
+            <!-- ВКЛАДКА ЧАТ -->
             <div id="tabChat" class="hidden">
                 <h2>💬 Чат</h2>
                 
@@ -333,7 +317,6 @@
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 280px 1fr; gap: 16px; min-height: 500px;">
-                    <!-- Список диалогов -->
                     <div class="dialogs-list" style="background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); overflow-y: auto; max-height: 500px;">
                         <div style="padding: 12px; border-bottom: 1px solid var(--card-border);">
                             <h3 style="font-size: 14px;">📋 Диалоги</h3>
@@ -341,7 +324,6 @@
                         <div id="dialogsContainer" style="display: flex; flex-direction: column;"></div>
                     </div>
                     
-                    <!-- Область сообщений -->
                     <div class="chat-area">
                         <div id="currentDialogInfo" style="padding: 12px; background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); margin-bottom: 12px;">
                             Выберите диалог
@@ -501,7 +483,6 @@
             document.getElementById('createPointsBlock').style.display = (isAdmin||isPartner) ? 'block' : 'none';
             document.getElementById('createProfitDisplay').style.display = (isAdmin||isPartner) ? 'flex' : 'none';
             
-            // Показываем панель админа в чате
             const adminPanel = document.getElementById('adminChatPanel');
             if (adminPanel) {
                 adminPanel.style.display = isAdmin ? 'block' : 'none';
@@ -524,7 +505,6 @@
             }, 3000);
         }
         
-        // Загрузка данных
         async function loadOrders() {
             try { const r = await fetch(SCRIPT_URL + '?action=getOrders&token=' + authToken); orders = (await r.json()).orders || []; renderOrders(); } catch(e) {}
         }
@@ -536,25 +516,19 @@
         async function loadUsers() {
             if (currentUser.role !== 'admin') return;
             try { const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); users = (await r.json()).users || []; renderUsersList(); 
-                // Обновляем список получателей для админа
                 updateAdminRecipientList();
             } catch(e) {}
         }
         
-        // Обновление списка получателей для админа
         function updateAdminRecipientList() {
             const select = document.getElementById('adminRecipientSelect');
             if (!select) return;
             
-            // Сохраняем выбранное значение
             const currentValue = select.value;
-            
-            // Очищаем и добавляем опции
             select.innerHTML = '<option value="">-- Выберите получателя --</option>';
             select.innerHTML += '<option value="all">👥 Всем пользователям</option>';
             select.innerHTML += '<option value="support">📞 От лица поддержки (всем)</option>';
             
-            // Добавляем каждого пользователя отдельно
             if (users && users.length > 0) {
                 const groupLabel = document.createElement('option');
                 groupLabel.disabled = true;
@@ -571,7 +545,6 @@
                 });
             }
             
-            // Восстанавливаем выбранное значение
             if (currentValue) select.value = currentValue;
         }
         
@@ -580,27 +553,21 @@
                 const r = await fetch(SCRIPT_URL + '?action=getAllMessages&token=' + authToken);
                 const data = await r.json();
                 
-                console.log('Загружены сообщения:', data);
-                
                 if (data.messages && data.messages.length > 0) {
                     chatMessages = data.messages.map(msg => ({
-                        id: msg.id || msg.OrderID,
-                        senderId: msg.senderId || msg.sender,
-                        recipientId: msg.recipientId || msg.recipient,
-                        senderName: msg.senderName || msg.sender,
-                        recipientName: msg.recipientName || msg.recipient,
-                        text: msg.text || msg.message,
+                        id: msg.id,
+                        senderId: msg.senderId,
+                        recipientId: msg.recipientId,
+                        senderName: msg.senderName,
+                        recipientName: msg.recipientName,
+                        text: msg.text,
                         time: msg.time,
-                        timestamp: msg.timestamp || (msg.time ? new Date('1970/01/01 ' + msg.time).getTime() : Date.now())
+                        timestamp: msg.timestamp || 0
                     }));
                 } else {
-                    console.log('Нет сообщений от сервера');
                     chatMessages = [];
                 }
                 
-                console.log('Всего сообщений:', chatMessages.length);
-                
-                // Обновляем отображение
                 if (document.getElementById('tabChat') && !document.getElementById('tabChat').classList.contains('hidden')) {
                     renderDialogs();
                     if (currentDialog) {
@@ -612,34 +579,42 @@
             }
         }
         
-        // Рендер заявок
         function formatDate(d) { if(!d) return ''; if(d.includes('T')) return d.split('T')[0].split('-').reverse().join('.'); const p=d.split('.'); return p.length===3?`${p[0]}.${p[1]}.${p[2].slice(-2)}`:d; }
         
         function renderOrders() {
             const cont = document.getElementById('ordersContainer'); if(!cont) return;
-            const tagF = document.getElementById('filterTag')?.value || '', statF = document.getElementById('filterStatus')?.value || '';
-            let filt = orders.filter(o => (!tagF || (o['Теги']||'').includes(tagF)) && (!statF || o['Статус'] === statF));
+            const statF = document.getElementById('filterStatus')?.value || '';
+            let filt = orders.filter(o => (!statF || o['Статус'] === statF));
             if(!filt.length) { cont.innerHTML = '<p style="opacity:0.7; text-align:center;">Нет заявок</p>'; return; }
+            
+            const isAdminOrPartner = (currentUser.role === 'admin' || currentUser.role === 'partner');
+            
             cont.innerHTML = filt.map(o => {
                 const price = parseFloat(o['Цена Ozon'])||0, disc = parseFloat(o['Скидка %'])||0, pts = parseFloat(o['Баллы'])||0;
-                const clientDisc = Math.round(price * disc / 100), profit = (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-clientDisc : 0;
-                const tags = (o['Теги']||'').split(',').filter(t=>t), status = o['Статус']||'В ожидании';
+                const clientDisc = Math.round(price * disc / 100), profit = isAdminOrPartner ? price-pts-clientDisc : 0;
+                const status = o['Статус']||'В ожидании';
                 let photosHtml = '';
                 if(o['Фото']) { try { const photos = JSON.parse(o['Фото']); photosHtml = `<div class="order-photos" style="display:flex; gap:6px; margin:10px 0;">${photos.map(p=>`<img src="${p}" onclick="showLightbox('${p}')" style="width:50px;height:50px;object-fit:cover;border-radius:10px;cursor:pointer;">`).join('')}</div>`; } catch(e) {} }
+                
+                let actionsHtml = '';
+                if (isAdminOrPartner) {
+                    actionsHtml = `
+                        <div class="order-actions">
+                            <a href="${o['Ссылка Ozon']||'#'}" target="_blank" class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</a>
+                            ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
+                        </div>
+                    `;
+                }
+                
                 return `<div class="order-card">
                     <div class="order-header"><strong><i class="fas fa-box"></i> ${escapeHtml(o['Товар'])}</strong><span class="badge">${status}</span></div>
-                    <div class="order-tags">${tags.map(t=>`<span class="tag ${t==='VIP'?'vip':t==='Срочно'?'urgent':t==='Новый'?'new':'problem'}">${escapeHtml(t)}</span>`).join('')}</div>
                     ${photosHtml}
                     <div class="price-row"><span>👤 Клиент:</span><span>${escapeHtml(o['Имя'])} / ${escapeHtml(o['Контакт'])}</span></div>
                     <div class="price-row"><span>💰 Цена на Ozon:</span><span>${price.toLocaleString()} ₽</span></div>
                     <div class="price-row"><span>🏷️ Цена со скидкой:</span><span><strong>${(price - clientDisc).toLocaleString()} ₽</strong></span></div>
-                    ${(currentUser.role==='admin'||currentUser.role==='partner')?`<div class="price-row profit"><span>💵 Прибыль:</span><span>${profit.toLocaleString()} ₽</span></div>`:''}
+                    ${isAdminOrPartner ? `<div class="price-row profit"><span>💵 Прибыль:</span><span>${profit.toLocaleString()} ₽</span></div>` : ''}
                     <div class="price-row"><span>📅 ${escapeHtml(o['Создал (Имя)']||'—')} / ${formatDate(o['Дата создания'])}</span></div>
-                    <div class="order-actions">
-                        <a href="${o['Ссылка Ozon']||'#'}" target="_blank" class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</a>
-                        ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
-                        ${currentUser.role==='admin' ? `<button class="btn-icon danger" onclick="deleteOrder('${o['ID заявки']}')"><i class="fas fa-trash"></i> Удалить</button>` : ''}
-                    </div>
+                    ${actionsHtml}
                 </div>`;
             }).join('');
         }
@@ -647,16 +622,11 @@
         window.showLightbox = src => { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').style.display = 'flex'; };
         window.markAsOrdered = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'В работе'}})); playSound('success'); await loadOrders(); };
         window.markAsCompleted = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'Завершено'}})); playSound('complete'); await loadOrders(); };
-        window.deleteOrder = async id => { if(!confirm('Удалить?')) return; await fetch(SCRIPT_URL + '?action=deleteOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id})); playSound('notification'); await loadOrders(); };
         
-        // Фильтры
-        document.getElementById('filterTag')?.addEventListener('change', renderOrders);
         document.getElementById('filterStatus')?.addEventListener('change', renderOrders);
-        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterTag').value=''; document.getElementById('filterStatus').value=''; renderOrders(); });
+        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterStatus').value=''; renderOrders(); });
         
-        // Форма создания
         function initCreateForm() {
-            document.querySelectorAll('[data-tag]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); const t=b.dataset.tag; if(selectedTags.includes(t)){ selectedTags=selectedTags.filter(x=>x!==t); b.classList.remove('active'); } else { selectedTags.push(t); b.classList.add('active'); } }));
             const photoInput = document.getElementById('photoInput'), uploadArea = document.getElementById('photoUploadArea');
             if (uploadArea) {
                 uploadArea.addEventListener('click', ()=>photoInput.click());
@@ -710,20 +680,19 @@
                 productPrice: price, pointsUsed: pts, discountPercent: perc, clientDiscount: disc, clientPayment: price - disc,
                 profit: (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-disc : 0,
                 ozonAccount: document.getElementById('createOzonAccount')?.value || '', deliveryAddress: document.getElementById('createDeliveryAddress').value,
-                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: selectedTags.join(','), photos: uploadedPhotos,
+                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: JSON.stringify([]), photos: uploadedPhotos,
                 createdBy: currentUser.id, createdByName: currentUser.username
             };
             if (!order.customerName || !order.productName || !order.productUrl) { st.textContent = '⚠️ Заполните поля'; return; }
             st.textContent = '⏳ Создание...';
             try {
                 const r = await fetch(SCRIPT_URL + '?action=addOrder&token=' + authToken + '&data=' + JSON.stringify({order}));
-                if ((await r.json()).success) { playSound('notification'); st.textContent = '✅ Создано!'; document.getElementById('createOrderForm').reset(); uploadedPhotos = []; selectedTags = []; renderPhotoPreviews(); document.querySelectorAll('[data-tag]').forEach(b => b.classList.remove('active')); await loadOrders(); setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); }
+                if ((await r.json()).success) { playSound('notification'); st.textContent = '✅ Создано!'; document.getElementById('createOrderForm').reset(); uploadedPhotos = []; renderPhotoPreviews(); await loadOrders(); setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); }
                 else st.textContent = '❌ Ошибка';
             } catch(ex) { st.textContent = '❌ Ошибка'; }
         });
         
-        // ========== ЧАТ С ДИАЛОГАМИ - ИСПРАВЛЕННАЯ ВЕРСИЯ ==========
-        
+        // ========== ЧАТ ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -737,17 +706,13 @@
             
             const dialogs = new Map();
             
-            console.log('Рендер диалогов, сообщений:', chatMessages.length);
-            
             chatMessages.forEach(msg => {
                 if (!msg.senderId || !msg.recipientId) return;
                 
-                // Определяем ID диалога
                 let dialogId = null;
                 let dialogName = null;
                 
                 if (currentUser.role === 'admin') {
-                    // Для админа: диалог с каждым пользователем
                     if (msg.recipientId === 'support' || msg.senderId === 'support') {
                         const userId = msg.senderId === 'support' ? msg.recipientId : msg.senderId;
                         if (userId && userId !== 'support' && userId !== 'all') {
@@ -759,7 +724,6 @@
                         dialogName = 'Общий чат';
                     }
                 } else {
-                    // Для обычного пользователя
                     if (msg.recipientId === 'support' || msg.senderId === 'support') {
                         dialogId = 'support';
                         dialogName = 'Поддержка';
@@ -843,18 +807,15 @@
             let filteredMessages = [];
             
             if (currentDialog.userId === 'support') {
-                // Диалог с поддержкой
                 filteredMessages = chatMessages.filter(msg => 
                     (msg.recipientId === 'support' || msg.senderId === 'support') &&
                     (msg.senderId === currentUser.id || msg.recipientId === currentUser.id)
                 );
             } else if (currentDialog.userId === 'all') {
-                // Общий чат
                 filteredMessages = chatMessages.filter(msg => 
                     msg.recipientId === 'all' || msg.senderId === 'all'
                 );
             } else {
-                // Личный диалог
                 filteredMessages = chatMessages.filter(msg => 
                     (msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
                     (msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id) ||
@@ -873,9 +834,8 @@
             container.innerHTML = filteredMessages.map(msg => {
                 const isOwn = msg.senderId === currentUser.id;
                 const senderName = msg.senderName || 'Пользователь';
-                const isAdminMsg = msg.senderId === 'support' && currentUser.role === 'admin';
                 
-                return `<div class="message ${isOwn ? 'own' : ''} ${isAdminMsg ? 'admin-message' : ''}">
+                return `<div class="message ${isOwn ? 'own' : ''}">
                     <div class="message-header">
                         <span><strong>${escapeHtml(senderName)}</strong> → ${escapeHtml(msg.recipientName === 'support' ? 'Поддержка' : (msg.recipientName === 'all' ? 'Всем' : msg.recipientName))}</span>
                         <span>${msg.time || ''}</span>
@@ -905,7 +865,6 @@
             }
         }
         
-        // Отправка сообщения (обычный пользователь)
         document.getElementById('sendChatBtn')?.addEventListener('click', async () => {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
@@ -937,14 +896,12 @@
                 timestamp: Date.now()
             };
             
-            // Добавляем локально
             chatMessages.push(message);
             renderChatMessages();
             renderDialogs();
             input.value = '';
             playSound('message');
             
-            // Отправляем на сервер
             try {
                 await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
             } catch(e) {
@@ -952,7 +909,6 @@
             }
         });
         
-        // Отправка сообщения от администратора (из панели)
         document.getElementById('sendAdminMsgBtn')?.addEventListener('click', async () => {
             if (currentUser.role !== 'admin') {
                 alert('Эта функция только для администратора');
@@ -977,15 +933,12 @@
             let targetUsers = [];
             
             if (recipientId === 'all') {
-                // Всем пользователям
                 targetUsers = users.filter(u => u.id !== currentUser.id);
                 recipientName = 'all';
             } else if (recipientId === 'support') {
-                // От лица поддержки (создаем одно сообщение в поддержку)
                 targetUsers = [{ id: 'support', name: 'support' }];
                 recipientName = 'support';
             } else {
-                // Конкретному пользователю
                 const user = users.find(u => u.id === recipientId);
                 if (user) {
                     targetUsers = [{ id: user.id, name: user.username }];
@@ -1016,7 +969,6 @@
                 }
             }
             
-            // Обновляем отображение
             renderDialogs();
             if (currentDialog && (currentDialog.userId === recipientId || recipientId === 'all' || recipientId === 'support')) {
                 renderChatMessages();
@@ -1039,7 +991,6 @@
             }
         });
         
-        // Аккаунты
         function updateAccountSelects() { 
             const s=document.getElementById('createOzonAccount'); 
             if(s) s.innerHTML=accounts.map(a=>`<option value="${a.id}">${escapeHtml(a.name)} (${a.balance} бал.)</option>`).join(''); 
@@ -1073,7 +1024,6 @@
             } 
         });
         
-        // Пользователи
         function renderUsersList() { 
             const cont=document.getElementById('usersList'); 
             if(!cont) return; 
@@ -1086,7 +1036,6 @@
             await loadUsers(); 
         };
         
-        // Проверка авторизации
         async function checkAuth() { 
             const t=localStorage.getItem('authToken'), u=localStorage.getItem('currentUser'); 
             if(t&&u){ 
@@ -1105,7 +1054,6 @@
             showLogin(); 
         }
         
-        // Инициализация настроек и обработчиков
         loadSettings();
         
         document.querySelectorAll('[data-theme]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-theme', b.dataset.theme); saveSettings(); updateActiveSettings(); }));
