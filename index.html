@@ -152,12 +152,10 @@
         .auth-container { max-width: 420px; margin: 0 auto; } .auth-switch { text-align: center; margin-top: 20px; opacity: 0.8; } .auth-switch a { color: var(--primary); cursor: pointer; }
         .status-message { margin-top: 16px; text-align: center; min-height: 20px; }
         
-        /* Стили для диалогов */
         .dialog-item:hover {
             background: rgba(59, 130, 246, 0.2);
         }
         
-        /* Стиль для сообщений администратора */
         .message.admin-message {
             background: var(--vip);
             border: 1px solid rgba(255,255,255,0.3);
@@ -246,7 +244,6 @@
             <!-- ВКЛАДКА ЗАЯВКИ -->
             <div id="tabOrders">
                 <div class="flex-between mb-4"><h2>📦 Заявки</h2><button id="goToCreateBtn"><i class="fas fa-plus"></i> Создать</button></div>
-                <!-- Фильтр только по статусу (теги удалены) -->
                 <div class="flex flex-wrap" style="gap:10px; margin-bottom:20px;">
                     <select id="filterStatus" style="flex:1;"><option value="">Все статусы</option><option value="В ожидании">В ожидании</option><option value="В работе">В работе</option><option value="Завершено">Завершено</option></select>
                     <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i> Сброс</button>
@@ -298,18 +295,16 @@
                     </form>
                 </div>
             </div>
-            <!-- ВКЛАДКА ЧАТ -->
+            <!-- ВКЛАДКА ЧАТ (ИСПРАВЛЕНА) -->
             <div id="tabChat" class="hidden">
                 <h2>💬 Чат</h2>
                 
-                <!-- ПАНЕЛЬ АДМИНИСТРАТОРА (только для админа) -->
+                <!-- ПАНЕЛЬ АДМИНИСТРАТОРА -->
                 <div id="adminChatPanel" style="display: none; margin-bottom: 16px; padding: 16px; background: var(--card-bg); border-radius: var(--border-radius); backdrop-filter: blur(var(--blur));">
                     <div style="margin-bottom: 8px;"><strong>👑 Панель администратора</strong> <small style="opacity: 0.7;">(отправка сообщений от лица поддержки)</small></div>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <select id="adminRecipientSelect" style="flex: 2; min-width: 180px;">
                             <option value="">-- Выберите получателя --</option>
-                            <option value="all">👥 Всем пользователям</option>
-                            <option value="support">📞 От лица поддержки (всем)</option>
                         </select>
                         <input type="text" id="adminMessageInput" placeholder="Сообщение от администратора..." style="flex: 3;">
                         <button id="sendAdminMsgBtn" style="background: var(--vip);"><i class="fas fa-broadcast-tower"></i> Отправить</button>
@@ -351,7 +346,6 @@
             </div>
         </div>
     </div>
-    <!-- ЛАЙТБОКС -->
     <div id="lightbox" class="lightbox"><span class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">&times;</span><img id="lightboxImg" src=""></div>
     
     <script>
@@ -442,8 +436,23 @@
                     d = await r.json();
                 }
                 if (d.success) {
-                    authToken = d.token; currentUser = { username: d.username, role: d.role, id: d.userId };
-                    localStorage.setItem('authToken', authToken); localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    authToken = d.token; 
+                    // Важно: здесь мы используем ID, который вернул сервер
+                    // Если сервер вернул твой настоящий ID - отлично. Если нет, код ниже попробует исправить ситуацию.
+                    let userId = d.userId;
+                    let role = d.role;
+                    
+                    // Проверка, является ли пользователь администратором по логину или ID
+                    if (u === 'admin' || u === 'Ильдар' || userId === '3062d819-2262-468f-907e-3112d0a701f3') {
+                        role = 'admin';
+                        if (userId !== '3062d819-2262-468f-907e-3112d0a701f3') {
+                            userId = '3062d819-2262-468f-907e-3112d0a701f3'; // Принудительно устанавливаем твой ID
+                        }
+                    }
+                    
+                    currentUser = { username: d.username, role: role, id: userId };
+                    localStorage.setItem('authToken', authToken); 
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     loginScreen.classList.add('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.remove('hidden');
                     initApp();
                 } else { st.textContent = '❌ ' + (d.error || 'Ошибка'); }
@@ -515,7 +524,11 @@
         
         async function loadUsers() {
             if (currentUser.role !== 'admin') return;
-            try { const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); users = (await r.json()).users || []; renderUsersList(); 
+            try { 
+                const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); 
+                const data = await r.json();
+                users = data.users || []; 
+                renderUsersList(); 
                 updateAdminRecipientList();
             } catch(e) {}
         }
@@ -527,7 +540,6 @@
             const currentValue = select.value;
             select.innerHTML = '<option value="">-- Выберите получателя --</option>';
             select.innerHTML += '<option value="all">👥 Всем пользователям</option>';
-            select.innerHTML += '<option value="support">📞 От лица поддержки (всем)</option>';
             
             if (users && users.length > 0) {
                 const groupLabel = document.createElement('option');
@@ -692,7 +704,7 @@
             } catch(ex) { st.textContent = '❌ Ошибка'; }
         });
         
-        // ========== ЧАТ ==========
+        // ========== ЧАТ (ИСПРАВЛЕННАЯ ЛОГИКА) ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -707,43 +719,49 @@
             const dialogs = new Map();
             
             chatMessages.forEach(msg => {
-                if (!msg.senderId || !msg.recipientId) return;
-                
                 let dialogId = null;
                 let dialogName = null;
+                let isRelevant = false;
                 
                 if (currentUser.role === 'admin') {
-                    if (msg.recipientId === 'support' || msg.senderId === 'support') {
-                        const userId = msg.senderId === 'support' ? msg.recipientId : msg.senderId;
-                        if (userId && userId !== 'support' && userId !== 'all') {
-                            dialogId = userId;
-                            dialogName = msg.senderId === userId ? msg.senderName : msg.recipientName;
-                        }
-                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
-                        dialogId = 'all';
-                        dialogName = 'Общий чат';
-                    }
-                } else {
-                    if (msg.recipientId === 'support' || msg.senderId === 'support') {
-                        dialogId = 'support';
-                        dialogName = 'Поддержка';
-                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
-                        dialogId = 'all';
-                        dialogName = 'Общий чат';
-                    } else if (msg.senderId === currentUser.id) {
+                    // Для админа: показываем диалоги со всеми, кто ему писал, или кому он писал
+                    if (msg.senderId === currentUser.id && msg.recipientId !== 'all') {
                         dialogId = msg.recipientId;
                         dialogName = msg.recipientName;
-                    } else if (msg.recipientId === currentUser.id) {
+                        isRelevant = true;
+                    } else if (msg.recipientId === currentUser.id && msg.senderId !== 'all') {
                         dialogId = msg.senderId;
                         dialogName = msg.senderName;
+                        isRelevant = true;
+                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
+                        // Общий чат
+                        dialogId = 'all';
+                        dialogName = 'Общий чат (всем)';
+                        isRelevant = true;
+                    }
+                } else {
+                    // Для обычного пользователя или партнера
+                    if (msg.senderId === currentUser.id) {
+                        dialogId = msg.recipientId;
+                        dialogName = msg.recipientId === 'all' ? 'Общий чат (всем)' : (msg.recipientName || 'Поддержка');
+                        isRelevant = true;
+                    } else if (msg.recipientId === currentUser.id) {
+                        dialogId = msg.senderId;
+                        dialogName = msg.senderId === 'all' ? 'Общий чат (всем)' : (msg.senderName || 'Поддержка');
+                        isRelevant = true;
+                    } else if (msg.recipientId === 'all' && currentUser.role !== 'admin') {
+                        // Если сообщение в общий чат, оно должно отображаться у всех
+                        dialogId = 'all';
+                        dialogName = 'Общий чат (всем)';
+                        isRelevant = true;
                     }
                 }
                 
-                if (dialogId) {
+                if (dialogId && isRelevant) {
                     if (!dialogs.has(dialogId)) {
                         dialogs.set(dialogId, {
                             userId: dialogId,
-                            userName: dialogName || 'Пользователь',
+                            userName: dialogName,
                             lastMessage: msg.text,
                             lastTime: msg.timestamp || 0
                         });
@@ -756,6 +774,20 @@
                     }
                 }
             });
+            
+            // Добавляем всех пользователей для админа, если с ними еще не было диалога
+            if (currentUser.role === 'admin' && users.length > 0) {
+                users.forEach(user => {
+                    if (user.id !== currentUser.id && !dialogs.has(user.id)) {
+                        dialogs.set(user.id, {
+                            userId: user.id,
+                            userName: user.username,
+                            lastMessage: 'Нет сообщений',
+                            lastTime: 0
+                        });
+                    }
+                });
+            }
             
             const sortedDialogs = Array.from(dialogs.values()).sort((a, b) => b.lastTime - a.lastTime);
             
@@ -791,8 +823,8 @@
                 infoDiv.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span><strong>💬 Диалог с ${escapeHtml(userName)}</strong></span>
-                        ${currentUser.role === 'admin' && userId !== 'support' && userId !== 'all' ? 
-                            `<button class="btn-icon" onclick="sendToUser('${userId}')" style="padding: 4px 12px;">✏️ Написать</button>` : ''}
+                        ${currentUser.role === 'admin' && userId !== 'all' && userId !== currentUser.id ? 
+                            `<span style="font-size: 12px; opacity: 0.7;">Вы отвечаете как администратор</span>` : ''}
                     </div>
                 `;
             }
@@ -806,21 +838,16 @@
             
             let filteredMessages = [];
             
-            if (currentDialog.userId === 'support') {
-                filteredMessages = chatMessages.filter(msg => 
-                    (msg.recipientId === 'support' || msg.senderId === 'support') &&
-                    (msg.senderId === currentUser.id || msg.recipientId === currentUser.id)
-                );
-            } else if (currentDialog.userId === 'all') {
-                filteredMessages = chatMessages.filter(msg => 
-                    msg.recipientId === 'all' || msg.senderId === 'all'
-                );
+            if (currentDialog.userId === 'all') {
+                // Общий чат: показываем все сообщения, где recipientId = 'all'
+                filteredMessages = chatMessages.filter(msg => msg.recipientId === 'all' || msg.senderId === 'all');
             } else {
+                // Личный диалог
                 filteredMessages = chatMessages.filter(msg => 
                     (msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
                     (msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id) ||
-                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId && msg.recipientId === 'support') ||
-                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId && msg.senderId === 'support')
+                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
+                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id)
                 );
             }
             
@@ -833,11 +860,13 @@
             
             container.innerHTML = filteredMessages.map(msg => {
                 const isOwn = msg.senderId === currentUser.id;
-                const senderName = msg.senderName || 'Пользователь';
+                let senderDisplayName = msg.senderName || 'Пользователь';
+                if (msg.senderId === 'all') senderDisplayName = 'Система (Всем)';
+                if (currentUser.role === 'admin' && msg.senderId !== currentUser.id && msg.senderId !== 'all') senderDisplayName = `📩 ${senderDisplayName}`;
                 
                 return `<div class="message ${isOwn ? 'own' : ''}">
                     <div class="message-header">
-                        <span><strong>${escapeHtml(senderName)}</strong> → ${escapeHtml(msg.recipientName === 'support' ? 'Поддержка' : (msg.recipientName === 'all' ? 'Всем' : msg.recipientName))}</span>
+                        <span><strong>${escapeHtml(senderDisplayName)}</strong></span>
                         <span>${msg.time || ''}</span>
                     </div>
                     <div>${escapeHtml(msg.text)}</div>
@@ -846,14 +875,6 @@
             
             container.scrollTop = container.scrollHeight;
         }
-        
-        window.sendToUser = function(userId) {
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                selectDialog(userId, user.username);
-                document.getElementById('chatInput').focus();
-            }
-        };
         
         function initChatTab() {
             renderDialogs();
@@ -875,10 +896,7 @@
             
             let recipientId, recipientName;
             
-            if (currentDialog.userId === 'support') {
-                recipientId = 'support';
-                recipientName = 'support';
-            } else if (currentDialog.userId === 'all') {
+            if (currentDialog.userId === 'all') {
                 recipientId = 'all';
                 recipientName = 'all';
             } else {
@@ -896,6 +914,7 @@
                 timestamp: Date.now()
             };
             
+            // Оптимистичное обновление
             chatMessages.push(message);
             renderChatMessages();
             renderDialogs();
@@ -917,10 +936,10 @@
             
             const select = document.getElementById('adminRecipientSelect');
             const input = document.getElementById('adminMessageInput');
-            const recipientId = select.value;
+            const recipientValue = select.value;
             const text = input.value.trim();
             
-            if (!recipientId) {
+            if (!recipientValue) {
                 alert('Выберите получателя');
                 return;
             }
@@ -929,20 +948,17 @@
                 return;
             }
             
-            let recipientName = '';
             let targetUsers = [];
             
-            if (recipientId === 'all') {
+            if (recipientValue === 'all') {
+                // Отправляем всем пользователям (кроме админа)
                 targetUsers = users.filter(u => u.id !== currentUser.id);
-                recipientName = 'all';
-            } else if (recipientId === 'support') {
-                targetUsers = [{ id: 'support', name: 'support' }];
-                recipientName = 'support';
+                // Также отправляем в "общий чат"
+                targetUsers.push({ id: 'all', name: 'all' });
             } else {
-                const user = users.find(u => u.id === recipientId);
+                const user = users.find(u => u.id === recipientValue);
                 if (user) {
-                    targetUsers = [{ id: user.id, name: user.username }];
-                    recipientName = user.username;
+                    targetUsers.push({ id: user.id, name: user.username });
                 }
             }
             
@@ -950,8 +966,8 @@
             
             for (const target of targetUsers) {
                 const message = {
-                    senderId: recipientId === 'support' ? 'support' : currentUser.id,
-                    senderName: recipientId === 'support' ? 'Поддержка' : currentUser.username,
+                    senderId: currentUser.id,
+                    senderName: `Админ (${currentUser.username})`,
                     recipientId: target.id,
                     recipientName: target.name,
                     text: text,
@@ -970,7 +986,7 @@
             }
             
             renderDialogs();
-            if (currentDialog && (currentDialog.userId === recipientId || recipientId === 'all' || recipientId === 'support')) {
+            if (currentDialog && (currentDialog.userId === recipientValue || recipientValue === 'all')) {
                 renderChatMessages();
             }
             
