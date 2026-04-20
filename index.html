@@ -123,10 +123,6 @@
         .setting-option:hover { transform: scale(1.05); } .setting-option.active { background: var(--primary); color: white; }
         
         .order-card { border-left: 4px solid var(--primary); } .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .order-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-        .tag { font-size: 0.7rem; padding: 4px 10px; border-radius: 40px; background: rgba(255,255,255,0.15); font-weight: 500; text-transform: uppercase; transition: transform 0.2s; }
-        .tag:hover { transform: scale(1.05); } .tag.vip { background: var(--vip); color: white; } .tag.urgent { background: var(--danger); color: white; }
-        .tag.new { background: var(--success); color: white; } .tag.problem { background: var(--warning); color: #1a1a2e; }
         .price-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin: 6px 0; } .profit { color: var(--success); font-weight: 700; }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing); } .full-width { grid-column: span 2; }
@@ -156,8 +152,38 @@
         .auth-container { max-width: 420px; margin: 0 auto; } .auth-switch { text-align: center; margin-top: 20px; opacity: 0.8; } .auth-switch a { color: var(--primary); cursor: pointer; }
         .status-message { margin-top: 16px; text-align: center; min-height: 20px; }
         
-        @media (max-width: 767px) { .form-row { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
-        @media (min-width: 768px) { body { padding: 24px 32px; } .app-grid { max-width: 1200px; margin: 0 auto; } [data-view="cards"] .orders-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; } }
+        /* Стили для диалогов */
+        .dialog-item:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Стиль для сообщений администратора */
+        .message.admin-message {
+            background: var(--vip);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        @media (max-width: 767px) { 
+            .form-row { grid-template-columns: 1fr; } 
+            .full-width { grid-column: span 1; }
+            #tabChat > div {
+                grid-template-columns: 1fr !important;
+            }
+            .dialogs-list {
+                max-height: 200px !important;
+            }
+            #adminChatPanel .flex-between {
+                flex-direction: column;
+            }
+            #adminChatPanel select, #adminChatPanel input {
+                width: 100%;
+            }
+        }
+        @media (min-width: 768px) { 
+            body { padding: 24px 32px; } 
+            .app-grid { max-width: 1200px; margin: 0 auto; } 
+            [data-view="cards"] .orders-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; } 
+        }
         @media (min-width: 1024px) { [data-view="cards"] .orders-container { grid-template-columns: repeat(3, 1fr); } }
     </style>
 </head>
@@ -220,10 +246,10 @@
             <!-- ВКЛАДКА ЗАЯВКИ -->
             <div id="tabOrders">
                 <div class="flex-between mb-4"><h2>📦 Заявки</h2><button id="goToCreateBtn"><i class="fas fa-plus"></i> Создать</button></div>
+                <!-- Фильтр только по статусу (теги удалены) -->
                 <div class="flex flex-wrap" style="gap:10px; margin-bottom:20px;">
-                    <select id="filterTag" style="flex:1;"><option value="">Все теги</option><option value="VIP">VIP</option><option value="Срочно">Срочно</option><option value="Проблемный">Проблемный</option><option value="Постоянный">Постоянный</option><option value="Новый">Новый</option></select>
                     <select id="filterStatus" style="flex:1;"><option value="">Все статусы</option><option value="В ожидании">В ожидании</option><option value="В работе">В работе</option><option value="Завершено">Завершено</option></select>
-                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i></button>
+                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i> Сброс</button>
                 </div>
                 <div id="ordersContainer" class="orders-container"></div>
             </div>
@@ -246,17 +272,6 @@
                             <div class="photo-upload-area" id="photoUploadArea"><i class="fas fa-cloud-upload-alt"></i><p>Нажмите или перетащите</p></div>
                             <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
                             <div class="photos-preview" id="photosPreview"></div>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label>🏷️ Теги</label>
-                            <div class="flex flex-wrap" id="createTagsContainer">
-                                <button type="button" class="tag-option secondary" data-tag="VIP">VIP</button>
-                                <button type="button" class="tag-option secondary" data-tag="Срочно">Срочно</button>
-                                <button type="button" class="tag-option secondary" data-tag="Проблемный">Проблемный</button>
-                                <button type="button" class="tag-option secondary" data-tag="Постоянный">Постоянный</button>
-                                <button type="button" class="tag-option secondary" data-tag="Новый">Новый</button>
-                            </div>
                         </div>
                         
                         <div id="createPointsBlock" style="display:none;">
@@ -286,10 +301,41 @@
             <!-- ВКЛАДКА ЧАТ -->
             <div id="tabChat" class="hidden">
                 <h2>💬 Чат</h2>
-                <div class="chat-container">
-                    <div class="input-group"><label>Кому:</label><select id="chatRecipient"><option value="support">📞 Поддержка</option><option value="all">👥 Всем</option></select></div>
-                    <div id="chatMessages" class="chat-messages"></div>
-                    <div class="flex"><input type="text" id="chatInput" placeholder="Сообщение..."><button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button></div>
+                
+                <!-- ПАНЕЛЬ АДМИНИСТРАТОРА (только для админа) -->
+                <div id="adminChatPanel" style="display: none; margin-bottom: 16px; padding: 16px; background: var(--card-bg); border-radius: var(--border-radius); backdrop-filter: blur(var(--blur));">
+                    <div style="margin-bottom: 8px;"><strong>👑 Панель администратора</strong> <small style="opacity: 0.7;">(отправка сообщений от лица поддержки)</small></div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <select id="adminRecipientSelect" style="flex: 2; min-width: 180px;">
+                            <option value="">-- Выберите получателя --</option>
+                            <option value="all">👥 Всем пользователям</option>
+                            <option value="support">📞 От лица поддержки (всем)</option>
+                        </select>
+                        <input type="text" id="adminMessageInput" placeholder="Сообщение от администратора..." style="flex: 3;">
+                        <button id="sendAdminMsgBtn" style="background: var(--vip);"><i class="fas fa-broadcast-tower"></i> Отправить</button>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 280px 1fr; gap: 16px; min-height: 500px;">
+                    <div class="dialogs-list" style="background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); overflow-y: auto; max-height: 500px;">
+                        <div style="padding: 12px; border-bottom: 1px solid var(--card-border);">
+                            <h3 style="font-size: 14px;">📋 Диалоги</h3>
+                        </div>
+                        <div id="dialogsContainer" style="display: flex; flex-direction: column;"></div>
+                    </div>
+                    
+                    <div class="chat-area">
+                        <div id="currentDialogInfo" style="padding: 12px; background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); margin-bottom: 12px;">
+                            Выберите диалог
+                        </div>
+                        <div class="chat-container" style="height: 400px; display: flex; flex-direction: column;">
+                            <div id="chatMessages" class="chat-messages" style="flex: 1; overflow-y: auto;"></div>
+                            <div class="flex" style="margin-top: 12px;">
+                                <input type="text" id="chatInput" placeholder="Сообщение..." style="flex: 1;">
+                                <button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- ВКЛАДКА АККАУНТЫ -->
@@ -307,14 +353,19 @@
     </div>
     <!-- ЛАЙТБОКС -->
     <div id="lightbox" class="lightbox"><span class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">&times;</span><img id="lightboxImg" src=""></div>
+    
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwwhtBMRuMPyOho_lwrD8Bv5byZnIXpVq0SCr3a7hGmF34RbqV_lgLebZHChFmyx7p/exec';
         let currentUser = null, authToken = null, orders = [], accounts = [], users = [], chatMessages = [];
         let uploadedPhotos = [], selectedTags = [];
+        let currentDialog = null;
+        let chatPollingInterval = null;
         const body = document.body;
+        
         // Звуки
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let soundEnabled = true, soundVolume = 0.3;
+        
         function playSound(type) {
             if (!soundEnabled) return;
             const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
@@ -328,8 +379,10 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
+        
         window.toggleSound = () => { soundEnabled = !soundEnabled; document.getElementById('soundIcon').className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'; localStorage.setItem('soundEnabled', soundEnabled); if (soundEnabled) playSound('notification'); };
         window.setSoundVolume = (lvl) => { if (lvl === 'off') { soundEnabled = false; document.getElementById('soundIcon').className = 'fas fa-volume-mute'; } else { soundEnabled = true; document.getElementById('soundIcon').className = 'fas fa-volume-up'; if (lvl === 'low') soundVolume = 0.15; else if (lvl === 'high') soundVolume = 0.5; else soundVolume = 0.3; } localStorage.setItem('soundEnabled', soundEnabled); localStorage.setItem('soundVolume', soundVolume); };
+        
         // Настройки
         function loadSettings() {
             const s = JSON.parse(localStorage.getItem('ozon_settings') || '{}');
@@ -342,6 +395,7 @@
             updateActiveSettings();
             document.getElementById('themeToggle').textContent = body.getAttribute('data-theme') === 'dark' ? '🌙' : '☀️';
         }
+        
         function saveSettings() {
             localStorage.setItem('ozon_settings', JSON.stringify({
                 theme: body.getAttribute('data-theme'), color: body.getAttribute('data-color'),
@@ -349,23 +403,32 @@
                 radius: body.getAttribute('data-radius'), view: body.getAttribute('data-view')
             }));
         }
+        
         function updateActiveSettings() {
             ['theme','color','card-style','density','radius','view'].forEach(attr => {
                 const v = body.getAttribute(`data-${attr}`);
                 document.querySelectorAll(`[data-${attr}]`).forEach(b => b.classList.toggle('active', b.dataset[attr.replace(/-/g,'')] === v));
             });
         }
+        
         window.toggleTheme = () => {
             const cur = body.getAttribute('data-theme'), newT = cur === 'dark' ? 'light' : 'dark';
             body.setAttribute('data-theme', newT);
             document.getElementById('themeToggle').textContent = newT === 'dark' ? '🌙' : '☀️';
             saveSettings(); updateActiveSettings();
         };
+        
         // Авторизация
         const loginScreen = document.getElementById('loginScreen'), registerScreen = document.getElementById('registerScreen'), mainApp = document.getElementById('mainApp');
         window.showLogin = () => { loginScreen.classList.remove('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.add('hidden'); };
         window.showRegister = () => { loginScreen.classList.add('hidden'); registerScreen.classList.remove('hidden'); mainApp.classList.add('hidden'); };
-        window.logout = () => { localStorage.removeItem('authToken'); localStorage.removeItem('currentUser'); showLogin(); };
+        window.logout = () => { 
+            if (chatPollingInterval) clearInterval(chatPollingInterval);
+            localStorage.removeItem('authToken'); 
+            localStorage.removeItem('currentUser'); 
+            showLogin(); 
+        };
+        
         async function login() {
             const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value;
             const st = document.getElementById('loginStatus');
@@ -386,6 +449,7 @@
                 } else { st.textContent = '❌ ' + (d.error || 'Ошибка'); }
             } catch(e) { st.textContent = '❌ Ошибка соединения'; }
         }
+        
         async function register() {
             const u = document.getElementById('regUsername').value.trim(), p = document.getElementById('regPassword').value, c = document.getElementById('regConfirmPassword').value;
             const st = document.getElementById('registerStatus');
@@ -403,10 +467,12 @@
                 } else { st.textContent = '❌ ' + (d.error || 'Ошибка'); }
             } catch(e) { st.textContent = '❌ Ошибка соединения'; }
         }
+        
         document.getElementById('loginBtn').addEventListener('click', login);
         document.getElementById('registerBtn').addEventListener('click', register);
         document.getElementById('loginPassword').addEventListener('keypress', e => { if(e.key==='Enter') login(); });
         document.getElementById('regConfirmPassword').addEventListener('keypress', e => { if(e.key==='Enter') register(); });
+        
         // Инициализация приложения
         async function initApp() {
             document.getElementById('roleBadge').textContent = currentUser.role;
@@ -416,98 +482,194 @@
             document.getElementById('adminTabUsers').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('createPointsBlock').style.display = (isAdmin||isPartner) ? 'block' : 'none';
             document.getElementById('createProfitDisplay').style.display = (isAdmin||isPartner) ? 'flex' : 'none';
-            await loadOrders(); await loadAccounts(); await loadUsers(); await loadChat();
-            renderOrders(); renderChatRecipients(); initCreateForm();
+            
+            const adminPanel = document.getElementById('adminChatPanel');
+            if (adminPanel) {
+                adminPanel.style.display = isAdmin ? 'block' : 'none';
+            }
+            
+            await loadOrders(); 
+            await loadAccounts(); 
+            await loadUsers(); 
+            await loadChat();
+            renderOrders(); 
+            initCreateForm();
+            
+            startChatPolling();
         }
-        // Загрузка данных
+        
+        function startChatPolling() {
+            if (chatPollingInterval) clearInterval(chatPollingInterval);
+            chatPollingInterval = setInterval(async () => {
+                await loadChat();
+            }, 3000);
+        }
+        
         async function loadOrders() {
             try { const r = await fetch(SCRIPT_URL + '?action=getOrders&token=' + authToken); orders = (await r.json()).orders || []; renderOrders(); } catch(e) {}
         }
+        
         async function loadAccounts() {
             try { const r = await fetch(SCRIPT_URL + '?action=getAccounts&token=' + authToken); accounts = (await r.json()).accounts || []; updateAccountSelects(); renderAccountsList(); } catch(e) {}
         }
+        
         async function loadUsers() {
             if (currentUser.role !== 'admin') return;
-            try { const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); users = (await r.json()).users || []; renderUsersList(); renderChatRecipients(); } catch(e) {}
+            try { const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); users = (await r.json()).users || []; renderUsersList(); 
+                updateAdminRecipientList();
+            } catch(e) {}
         }
+        
+        function updateAdminRecipientList() {
+            const select = document.getElementById('adminRecipientSelect');
+            if (!select) return;
+            
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">-- Выберите получателя --</option>';
+            select.innerHTML += '<option value="all">👥 Всем пользователям</option>';
+            select.innerHTML += '<option value="support">📞 От лица поддержки (всем)</option>';
+            
+            if (users && users.length > 0) {
+                const groupLabel = document.createElement('option');
+                groupLabel.disabled = true;
+                groupLabel.textContent = '─── Отдельным пользователям ───';
+                select.appendChild(groupLabel);
+                
+                users.forEach(user => {
+                    if (user.id !== currentUser.id) {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `👤 ${user.username}`;
+                        select.appendChild(option);
+                    }
+                });
+            }
+            
+            if (currentValue) select.value = currentValue;
+        }
+        
         async function loadChat() {
             try {
                 const r = await fetch(SCRIPT_URL + '?action=getAllMessages&token=' + authToken);
                 const data = await r.json();
-                chatMessages = (data.messages || []).map(msg => ({
-                    ...msg,
-                    senderId: msg.senderId || msg.sender,
-                    recipientId: msg.recipientId || msg.recipient,
-                    senderName: msg.senderName || msg.sender,
-                    recipientName: msg.recipientName || msg.recipient
-                }));
-                renderChat();
-            } catch(e) { console.error('Ошибка загрузки чата:', e); }
+                
+                if (data.messages && data.messages.length > 0) {
+                    chatMessages = data.messages.map(msg => ({
+                        id: msg.id,
+                        senderId: msg.senderId,
+                        recipientId: msg.recipientId,
+                        senderName: msg.senderName,
+                        recipientName: msg.recipientName,
+                        text: msg.text,
+                        time: msg.time,
+                        timestamp: msg.timestamp || 0
+                    }));
+                } else {
+                    chatMessages = [];
+                }
+                
+                if (document.getElementById('tabChat') && !document.getElementById('tabChat').classList.contains('hidden')) {
+                    renderDialogs();
+                    if (currentDialog) {
+                        renderChatMessages();
+                    }
+                }
+            } catch(e) { 
+                console.error('Ошибка загрузки чата:', e);
+            }
         }
-        // Рендер заявок
+        
         function formatDate(d) { if(!d) return ''; if(d.includes('T')) return d.split('T')[0].split('-').reverse().join('.'); const p=d.split('.'); return p.length===3?`${p[0]}.${p[1]}.${p[2].slice(-2)}`:d; }
+        
         function renderOrders() {
             const cont = document.getElementById('ordersContainer'); if(!cont) return;
-            const tagF = document.getElementById('filterTag')?.value || '', statF = document.getElementById('filterStatus')?.value || '';
-            let filt = orders.filter(o => (!tagF || (o['Теги']||'').includes(tagF)) && (!statF || o['Статус'] === statF));
+            const statF = document.getElementById('filterStatus')?.value || '';
+            let filt = orders.filter(o => (!statF || o['Статус'] === statF));
             if(!filt.length) { cont.innerHTML = '<p style="opacity:0.7; text-align:center;">Нет заявок</p>'; return; }
+            
+            const isAdminOrPartner = (currentUser.role === 'admin' || currentUser.role === 'partner');
+            
             cont.innerHTML = filt.map(o => {
                 const price = parseFloat(o['Цена Ozon'])||0, disc = parseFloat(o['Скидка %'])||0, pts = parseFloat(o['Баллы'])||0;
-                const clientDisc = Math.round(price * disc / 100), profit = (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-clientDisc : 0;
-                const tags = (o['Теги']||'').split(',').filter(t=>t), status = o['Статус']||'В ожидании';
+                const clientDisc = Math.round(price * disc / 100), profit = isAdminOrPartner ? price-pts-clientDisc : 0;
+                const status = o['Статус']||'В ожидании';
                 let photosHtml = '';
                 if(o['Фото']) { try { const photos = JSON.parse(o['Фото']); photosHtml = `<div class="order-photos" style="display:flex; gap:6px; margin:10px 0;">${photos.map(p=>`<img src="${p}" onclick="showLightbox('${p}')" style="width:50px;height:50px;object-fit:cover;border-radius:10px;cursor:pointer;">`).join('')}</div>`; } catch(e) {} }
+                
+                let actionsHtml = '';
+                if (isAdminOrPartner) {
+                    actionsHtml = `
+                        <div class="order-actions">
+                            <a href="${o['Ссылка Ozon']||'#'}" target="_blank" class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</a>
+                            ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
+                        </div>
+                    `;
+                }
+                
                 return `<div class="order-card">
-                    <div class="order-header"><strong><i class="fas fa-box"></i> ${o['Товар']}</strong><span class="badge">${status}</span></div>
-                    <div class="order-tags">${tags.map(t=>`<span class="tag ${t==='VIP'?'vip':t==='Срочно'?'urgent':t==='Новый'?'new':'problem'}">${t}</span>`).join('')}</div>
+                    <div class="order-header"><strong><i class="fas fa-box"></i> ${escapeHtml(o['Товар'])}</strong><span class="badge">${status}</span></div>
                     ${photosHtml}
-                    <div class="price-row"><span>👤 Клиент:</span><span>${o['Имя']} / ${o['Контакт']}</span></div>
+                    <div class="price-row"><span>👤 Клиент:</span><span>${escapeHtml(o['Имя'])} / ${escapeHtml(o['Контакт'])}</span></div>
                     <div class="price-row"><span>💰 Цена на Ozon:</span><span>${price.toLocaleString()} ₽</span></div>
                     <div class="price-row"><span>🏷️ Цена со скидкой:</span><span><strong>${(price - clientDisc).toLocaleString()} ₽</strong></span></div>
-                    ${(currentUser.role==='admin'||currentUser.role==='partner')?`<div class="price-row profit"><span>💵 Прибыль:</span><span>${profit.toLocaleString()} ₽</span></div>`:''}
-                    <div class="price-row"><span>📅 ${o['Создал (Имя)']||'—'} / ${formatDate(o['Дата создания'])}</span></div>
-                    <div class="order-actions">
-                        <a href="${o['Ссылка Ozon']||'#'}" target="_blank" class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</a>
-                        ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
-                        ${currentUser.role==='admin' ? `<button class="btn-icon danger" onclick="deleteOrder('${o['ID заявки']}')"><i class="fas fa-trash"></i> Удалить</button>` : ''}
-                    </div>
+                    ${isAdminOrPartner ? `<div class="price-row profit"><span>💵 Прибыль:</span><span>${profit.toLocaleString()} ₽</span></div>` : ''}
+                    <div class="price-row"><span>📅 ${escapeHtml(o['Создал (Имя)']||'—')} / ${formatDate(o['Дата создания'])}</span></div>
+                    ${actionsHtml}
                 </div>`;
             }).join('');
         }
+        
         window.showLightbox = src => { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').style.display = 'flex'; };
         window.markAsOrdered = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'В работе'}})); playSound('success'); await loadOrders(); };
         window.markAsCompleted = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'Завершено'}})); playSound('complete'); await loadOrders(); };
-        window.deleteOrder = async id => { if(!confirm('Удалить?')) return; await fetch(SCRIPT_URL + '?action=deleteOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id})); playSound('notification'); await loadOrders(); };
-        // Фильтры
-        document.getElementById('filterTag')?.addEventListener('change', renderOrders);
+        
         document.getElementById('filterStatus')?.addEventListener('change', renderOrders);
-        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterTag').value=''; document.getElementById('filterStatus').value=''; renderOrders(); });
-        // Форма создания
+        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterStatus').value=''; renderOrders(); });
+        
         function initCreateForm() {
-            document.querySelectorAll('[data-tag]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); const t=b.dataset.tag; if(selectedTags.includes(t)){ selectedTags=selectedTags.filter(x=>x!==t); b.classList.remove('active'); } else { selectedTags.push(t); b.classList.add('active'); } }));
             const photoInput = document.getElementById('photoInput'), uploadArea = document.getElementById('photoUploadArea');
-            uploadArea.addEventListener('click', ()=>photoInput.click());
-            uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--primary)'; });
-            uploadArea.addEventListener('dragleave', ()=>uploadArea.style.borderColor='var(--card-border)');
-            uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--card-border)'; handleFiles(e.dataTransfer.files); });
-            photoInput.addEventListener('change', e=>handleFiles(e.target.files));
-            ['createProductPrice','createDiscountPercent','createPointsUsed'].forEach(id => document.getElementById(id).addEventListener('input', updateCreateCalculation));
+            if (uploadArea) {
+                uploadArea.addEventListener('click', ()=>photoInput.click());
+                uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--primary)'; });
+                uploadArea.addEventListener('dragleave', ()=>uploadArea.style.borderColor='var(--card-border)');
+                uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--card-border)'; handleFiles(e.dataTransfer.files); });
+            }
+            if (photoInput) photoInput.addEventListener('change', e=>handleFiles(e.target.files));
+            ['createProductPrice','createDiscountPercent','createPointsUsed'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateCreateCalculation);
+            });
             updateCreateCalculation();
         }
+        
         function handleFiles(files) {
             if(uploadedPhotos.length >= 3) { alert('Максимум 3 фото'); return; }
             Array.from(files).slice(0, 3 - uploadedPhotos.length).forEach(f => { if(f.size > 5*1024*1024) { alert('Файл > 5 МБ'); return; } const r=new FileReader(); r.onload=e=>{ uploadedPhotos.push(e.target.result); renderPhotoPreviews(); }; r.readAsDataURL(f); });
         }
-        function renderPhotoPreviews() { document.getElementById('photosPreview').innerHTML = uploadedPhotos.map((p,i)=>`<div class="photo-preview"><img src="${p}"><span class="remove-photo" onclick="removePhoto(${i})">&times;</span></div>`).join(''); }
-        window.removePhoto = i => { uploadedPhotos.splice(i,1); renderPhotoPreviews(); };
-        function updateCreateCalculation() {
-            const price = parseFloat(document.getElementById('createProductPrice').value)||0, perc = parseFloat(document.getElementById('createDiscountPercent').value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
-            const disc = Math.round(price * perc / 100);
-            document.getElementById('createClientDiscount').textContent = disc.toLocaleString() + ' ₽';
-            document.getElementById('createClientPayment').textContent = (price - disc).toLocaleString() + ' ₽';
-            if (currentUser?.role === 'admin' || currentUser?.role === 'partner') document.getElementById('createProfit').textContent = (price - pts - disc).toLocaleString() + ' ₽';
+        
+        function renderPhotoPreviews() { 
+            const previewsDiv = document.getElementById('photosPreview');
+            if (previewsDiv) {
+                previewsDiv.innerHTML = uploadedPhotos.map((p,i)=>`<div class="photo-preview"><img src="${p}"><span class="remove-photo" onclick="removePhoto(${i})">&times;</span></div>`).join('');
+            }
         }
-        document.getElementById('createOrderForm').addEventListener('submit', async e => {
+        
+        window.removePhoto = i => { uploadedPhotos.splice(i,1); renderPhotoPreviews(); };
+        
+        function updateCreateCalculation() {
+            const price = parseFloat(document.getElementById('createProductPrice')?.value)||0, perc = parseFloat(document.getElementById('createDiscountPercent')?.value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
+            const disc = Math.round(price * perc / 100);
+            const discountSpan = document.getElementById('createClientDiscount');
+            const paymentSpan = document.getElementById('createClientPayment');
+            if (discountSpan) discountSpan.textContent = disc.toLocaleString() + ' ₽';
+            if (paymentSpan) paymentSpan.textContent = (price - disc).toLocaleString() + ' ₽';
+            if (currentUser?.role === 'admin' || currentUser?.role === 'partner') {
+                const profitSpan = document.getElementById('createProfit');
+                if (profitSpan) profitSpan.textContent = (price - pts - disc).toLocaleString() + ' ₽';
+            }
+        }
+        
+        document.getElementById('createOrderForm')?.addEventListener('submit', async e => {
             e.preventDefault(); const st = document.getElementById('createFormStatus');
             const price = parseFloat(document.getElementById('createProductPrice').value)||0, perc = parseFloat(document.getElementById('createDiscountPercent').value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
             const disc = Math.round(price * perc / 100);
@@ -518,108 +680,411 @@
                 productPrice: price, pointsUsed: pts, discountPercent: perc, clientDiscount: disc, clientPayment: price - disc,
                 profit: (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-disc : 0,
                 ozonAccount: document.getElementById('createOzonAccount')?.value || '', deliveryAddress: document.getElementById('createDeliveryAddress').value,
-                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: selectedTags.join(','), photos: uploadedPhotos,
+                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: JSON.stringify([]), photos: uploadedPhotos,
                 createdBy: currentUser.id, createdByName: currentUser.username
             };
             if (!order.customerName || !order.productName || !order.productUrl) { st.textContent = '⚠️ Заполните поля'; return; }
             st.textContent = '⏳ Создание...';
             try {
                 const r = await fetch(SCRIPT_URL + '?action=addOrder&token=' + authToken + '&data=' + JSON.stringify({order}));
-                if ((await r.json()).success) { playSound('notification'); st.textContent = '✅ Создано!'; document.getElementById('createOrderForm').reset(); uploadedPhotos = []; selectedTags = []; renderPhotoPreviews(); document.querySelectorAll('[data-tag]').forEach(b => b.classList.remove('active')); await loadOrders(); setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); }
+                if ((await r.json()).success) { playSound('notification'); st.textContent = '✅ Создано!'; document.getElementById('createOrderForm').reset(); uploadedPhotos = []; renderPhotoPreviews(); await loadOrders(); setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); }
                 else st.textContent = '❌ Ошибка';
             } catch(ex) { st.textContent = '❌ Ошибка'; }
         });
-        // Чат
-        function renderChatRecipients() {
-            const select = document.getElementById('chatRecipient');
-            if (!select) return;
-            select.innerHTML = '';
-            const supportOption = document.createElement('option');
-            supportOption.value = 'support';
-            supportOption.textContent = '📞 Поддержка';
-            select.appendChild(supportOption);
-            const allOption = document.createElement('option');
-            allOption.value = 'all';
-            allOption.textContent = '👥 Всем';
-            select.appendChild(allOption);
-            users.forEach(u => {
-                if (u.id !== currentUser.id) {
-                    const option = document.createElement('option');
-                    option.value = u.id;
-                    option.textContent = `👤 ${u.username} (${u.role})`;
-                    select.appendChild(option);
-                }
-            });
+        
+        // ========== ЧАТ ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
-        function renderChat() {
-            const container = document.getElementById('chatMessages');
-            const selectedRecipientId = document.getElementById('chatRecipient')?.value || 'all';
+        
+        function renderDialogs() {
+            const container = document.getElementById('dialogsContainer');
             if (!container) return;
-            let filteredMessages = chatMessages.filter(msg => {
+            
+            const dialogs = new Map();
+            
+            chatMessages.forEach(msg => {
+                if (!msg.senderId || !msg.recipientId) return;
+                
+                let dialogId = null;
+                let dialogName = null;
+                
                 if (currentUser.role === 'admin') {
-                    if (selectedRecipientId === 'support') {
-                        return msg.recipientId === 'support' || msg.senderId === 'support';
+                    if (msg.recipientId === 'support' || msg.senderId === 'support') {
+                        const userId = msg.senderId === 'support' ? msg.recipientId : msg.senderId;
+                        if (userId && userId !== 'support' && userId !== 'all') {
+                            dialogId = userId;
+                            dialogName = msg.senderId === userId ? msg.senderName : msg.recipientName;
+                        }
+                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
+                        dialogId = 'all';
+                        dialogName = 'Общий чат';
                     }
-                    if (selectedRecipientId !== 'all') {
-                        return (msg.senderId === currentUser.id && msg.recipientId === selectedRecipientId) ||
-                               (msg.recipientId === currentUser.id && msg.senderId === selectedRecipientId) ||
-                               (msg.senderId === selectedRecipientId && msg.recipientId === 'support');
+                } else {
+                    if (msg.recipientId === 'support' || msg.senderId === 'support') {
+                        dialogId = 'support';
+                        dialogName = 'Поддержка';
+                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
+                        dialogId = 'all';
+                        dialogName = 'Общий чат';
+                    } else if (msg.senderId === currentUser.id) {
+                        dialogId = msg.recipientId;
+                        dialogName = msg.recipientName;
+                    } else if (msg.recipientId === currentUser.id) {
+                        dialogId = msg.senderId;
+                        dialogName = msg.senderName;
                     }
-                    return msg.senderId === currentUser.id || msg.recipientId === currentUser.id;
                 }
-                const isMyMessage = msg.senderId === currentUser.id || msg.recipientId === currentUser.id;
-                if (!isMyMessage) return false;
-                if (selectedRecipientId === 'all') return true;
-                if (selectedRecipientId === 'support') return msg.recipientId === 'support' || msg.senderId === 'support';
-                return (msg.senderId === currentUser.id && msg.recipientId === selectedRecipientId) ||
-                       (msg.recipientId === currentUser.id && msg.senderId === selectedRecipientId);
+                
+                if (dialogId) {
+                    if (!dialogs.has(dialogId)) {
+                        dialogs.set(dialogId, {
+                            userId: dialogId,
+                            userName: dialogName || 'Пользователь',
+                            lastMessage: msg.text,
+                            lastTime: msg.timestamp || 0
+                        });
+                    } else {
+                        const dialog = dialogs.get(dialogId);
+                        if ((msg.timestamp || 0) > dialog.lastTime) {
+                            dialog.lastMessage = msg.text;
+                            dialog.lastTime = msg.timestamp || 0;
+                        }
+                    }
+                }
             });
+            
+            const sortedDialogs = Array.from(dialogs.values()).sort((a, b) => b.lastTime - a.lastTime);
+            
+            if (sortedDialogs.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.7;">Нет диалогов</div>';
+                return;
+            }
+            
+            container.innerHTML = sortedDialogs.map(dialog => `
+                <div class="dialog-item" data-user-id="${dialog.userId}" style="
+                    padding: 12px;
+                    cursor: pointer;
+                    border-bottom: 1px solid var(--card-border);
+                    transition: background 0.2s;
+                    ${currentDialog && currentDialog.userId === dialog.userId ? 'background: var(--primary); opacity: 0.8;' : ''}
+                " onclick="selectDialog('${dialog.userId}', '${escapeHtml(dialog.userName).replace(/'/g, "\\'")}')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${escapeHtml(dialog.userName)}</strong>
+                        <small style="font-size: 10px;">${dialog.lastTime ? new Date(dialog.lastTime).toLocaleTimeString() : ''}</small>
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${escapeHtml((dialog.lastMessage || '').substring(0, 50))}${(dialog.lastMessage || '').length > 50 ? '...' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        window.selectDialog = function(userId, userName) {
+            currentDialog = { userId: userId, userName: userName };
+            
+            const infoDiv = document.getElementById('currentDialogInfo');
+            if (infoDiv) {
+                infoDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>💬 Диалог с ${escapeHtml(userName)}</strong></span>
+                        ${currentUser.role === 'admin' && userId !== 'support' && userId !== 'all' ? 
+                            `<button class="btn-icon" onclick="sendToUser('${userId}')" style="padding: 4px 12px;">✏️ Написать</button>` : ''}
+                    </div>
+                `;
+            }
+            
+            renderChatMessages();
+        };
+        
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            if (!container || !currentDialog) return;
+            
+            let filteredMessages = [];
+            
+            if (currentDialog.userId === 'support') {
+                filteredMessages = chatMessages.filter(msg => 
+                    (msg.recipientId === 'support' || msg.senderId === 'support') &&
+                    (msg.senderId === currentUser.id || msg.recipientId === currentUser.id)
+                );
+            } else if (currentDialog.userId === 'all') {
+                filteredMessages = chatMessages.filter(msg => 
+                    msg.recipientId === 'all' || msg.senderId === 'all'
+                );
+            } else {
+                filteredMessages = chatMessages.filter(msg => 
+                    (msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
+                    (msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id) ||
+                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId && msg.recipientId === 'support') ||
+                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId && msg.senderId === 'support')
+                );
+            }
+            
             filteredMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            if (filteredMessages.length === 0) { container.innerHTML = '<p style="opacity:0.7; text-align:center;">Нет сообщений</p>'; return; }
+            
+            if (filteredMessages.length === 0) {
+                container.innerHTML = '<p style="opacity:0.7; text-align:center; padding: 40px;">Нет сообщений. Напишите что-нибудь!</p>';
+                return;
+            }
+            
             container.innerHTML = filteredMessages.map(msg => {
                 const isOwn = msg.senderId === currentUser.id;
+                const senderName = msg.senderName || 'Пользователь';
+                
                 return `<div class="message ${isOwn ? 'own' : ''}">
-                    <div class="message-header"><span><strong>${msg.senderName || 'Пользователь'}</strong> → ${msg.recipientName || 'Группа'}</span><span>${msg.time || ''}</span></div>
-                    <div>${msg.text}</div>
+                    <div class="message-header">
+                        <span><strong>${escapeHtml(senderName)}</strong> → ${escapeHtml(msg.recipientName === 'support' ? 'Поддержка' : (msg.recipientName === 'all' ? 'Всем' : msg.recipientName))}</span>
+                        <span>${msg.time || ''}</span>
+                    </div>
+                    <div>${escapeHtml(msg.text)}</div>
                 </div>`;
             }).join('');
+            
             container.scrollTop = container.scrollHeight;
         }
+        
+        window.sendToUser = function(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                selectDialog(userId, user.username);
+                document.getElementById('chatInput').focus();
+            }
+        };
+        
+        function initChatTab() {
+            renderDialogs();
+            if (!currentDialog && document.querySelector('.dialog-item')) {
+                const firstDialog = document.querySelector('.dialog-item');
+                const userId = firstDialog.dataset.userId;
+                const userName = firstDialog.querySelector('strong')?.textContent || 'Пользователь';
+                selectDialog(userId, userName);
+            }
+        }
+        
         document.getElementById('sendChatBtn')?.addEventListener('click', async () => {
-            const input = document.getElementById('chatInput'), text = input.value.trim();
-            if (!text) return;
-            const recipientId = document.getElementById('chatRecipient').value;
-            let recipientName = recipientId;
-            if (recipientId === 'support') recipientName = 'Поддержка';
-            else if (recipientId === 'all') recipientName = 'Всем';
-            else { const u = users.find(u => u.id === recipientId); recipientName = u ? u.username : recipientId; }
-            const message = { senderId: currentUser.id, senderName: currentUser.username, recipientId, recipientName, text, time: new Date().toLocaleTimeString('ru-RU'), timestamp: Date.now() };
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !currentDialog) {
+                if (!currentDialog) alert('Выберите диалог');
+                return;
+            }
+            
+            let recipientId, recipientName;
+            
+            if (currentDialog.userId === 'support') {
+                recipientId = 'support';
+                recipientName = 'support';
+            } else if (currentDialog.userId === 'all') {
+                recipientId = 'all';
+                recipientName = 'all';
+            } else {
+                recipientId = currentDialog.userId;
+                recipientName = currentDialog.userName;
+            }
+            
+            const message = {
+                senderId: currentUser.id,
+                senderName: currentUser.username,
+                recipientId: recipientId,
+                recipientName: recipientName,
+                text: text,
+                time: new Date().toLocaleTimeString('ru-RU'),
+                timestamp: Date.now()
+            };
+            
             chatMessages.push(message);
-            await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
-            renderChat(); input.value = ''; playSound('message');
+            renderChatMessages();
+            renderDialogs();
+            input.value = '';
+            playSound('message');
+            
+            try {
+                await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
+            } catch(e) {
+                console.error('Ошибка отправки:', e);
+            }
         });
-        document.getElementById('chatRecipient')?.addEventListener('change', renderChat);
-        // Аккаунты
-        function updateAccountSelects() { const s=document.getElementById('createOzonAccount'); if(s) s.innerHTML=accounts.map(a=>`<option value="${a.id}">${a.name} (${a.balance} бал.)</option>`).join(''); if(accounts.length){ document.getElementById('createAccountBalance').textContent=accounts[0].balance; s.addEventListener('change', ()=>{ const a=accounts.find(x=>x.id===s.value); if(a) document.getElementById('createAccountBalance').textContent=a.balance; }); } }
-        function renderAccountsList() { const cont=document.getElementById('accountsList'); if(!cont) return; cont.innerHTML=accounts.map(a=>`<div class="account-card flex-between"><span><strong>${a.name}</strong> : ${a.balance} бал.</span><button class="btn-icon danger" onclick="deleteAccount('${a.id}')"><i class="fas fa-trash"></i></button></div>`).join(''); }
-        window.deleteAccount = async id => { if(!confirm('Удалить?')) return; await fetch(SCRIPT_URL + '?action=deleteAccount&token=' + authToken + '&data=' + JSON.stringify({accountId:id})); await loadAccounts(); };
-        document.getElementById('addAccountBtn')?.addEventListener('click', async ()=>{ const n=prompt('Название:'); if(n) { const b=parseInt(prompt('Баланс:'))||0; await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({account:{name:n, balance:b}})); await loadAccounts(); } });
-        // Пользователи
-        function renderUsersList() { const cont=document.getElementById('usersList'); if(!cont) return; cont.innerHTML=users.map(u=>`<div class="flex-between account-card"><span><strong>${u.username}</strong> (${u.role})</span><select id="role_${u.id}" onchange="updateUserRole('${u.id}')"><option value="user" ${u.role=='user'?'selected':''}>User</option><option value="partner" ${u.role=='partner'?'selected':''}>Partner</option><option value="admin" ${u.role=='admin'?'selected':''}>Admin</option></select></div>`).join(''); }
-        window.updateUserRole = async id => { const r=document.getElementById('role_'+id).value; await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({userId:id, updates:{role:r}})); await loadUsers(); };
-        // Проверка авторизации
-        async function checkAuth() { const t=localStorage.getItem('authToken'), u=localStorage.getItem('currentUser'); if(t&&u){ try { if((await (await fetch(SCRIPT_URL + '?action=checkToken&data=' + JSON.stringify({token:t}))).json()).valid) { authToken=t; currentUser=JSON.parse(u); loginScreen.classList.add('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.remove('hidden'); initApp(); return; } } catch(e) {} } showLogin(); }
-        // Инициализация
+        
+        document.getElementById('sendAdminMsgBtn')?.addEventListener('click', async () => {
+            if (currentUser.role !== 'admin') {
+                alert('Эта функция только для администратора');
+                return;
+            }
+            
+            const select = document.getElementById('adminRecipientSelect');
+            const input = document.getElementById('adminMessageInput');
+            const recipientId = select.value;
+            const text = input.value.trim();
+            
+            if (!recipientId) {
+                alert('Выберите получателя');
+                return;
+            }
+            if (!text) {
+                alert('Введите сообщение');
+                return;
+            }
+            
+            let recipientName = '';
+            let targetUsers = [];
+            
+            if (recipientId === 'all') {
+                targetUsers = users.filter(u => u.id !== currentUser.id);
+                recipientName = 'all';
+            } else if (recipientId === 'support') {
+                targetUsers = [{ id: 'support', name: 'support' }];
+                recipientName = 'support';
+            } else {
+                const user = users.find(u => u.id === recipientId);
+                if (user) {
+                    targetUsers = [{ id: user.id, name: user.username }];
+                    recipientName = user.username;
+                }
+            }
+            
+            let successCount = 0;
+            
+            for (const target of targetUsers) {
+                const message = {
+                    senderId: recipientId === 'support' ? 'support' : currentUser.id,
+                    senderName: recipientId === 'support' ? 'Поддержка' : currentUser.username,
+                    recipientId: target.id,
+                    recipientName: target.name,
+                    text: text,
+                    time: new Date().toLocaleTimeString('ru-RU'),
+                    timestamp: Date.now()
+                };
+                
+                chatMessages.push(message);
+                
+                try {
+                    await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
+                    successCount++;
+                } catch(e) {
+                    console.error('Ошибка отправки:', e);
+                }
+            }
+            
+            renderDialogs();
+            if (currentDialog && (currentDialog.userId === recipientId || recipientId === 'all' || recipientId === 'support')) {
+                renderChatMessages();
+            }
+            
+            input.value = '';
+            playSound('notification');
+            alert(`✅ Сообщение отправлено ${successCount} получателям`);
+        });
+        
+        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('sendChatBtn')?.click();
+            }
+        });
+        
+        document.getElementById('adminMessageInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('sendAdminMsgBtn')?.click();
+            }
+        });
+        
+        function updateAccountSelects() { 
+            const s=document.getElementById('createOzonAccount'); 
+            if(s) s.innerHTML=accounts.map(a=>`<option value="${a.id}">${escapeHtml(a.name)} (${a.balance} бал.)</option>`).join(''); 
+            if(accounts.length && s){ 
+                document.getElementById('createAccountBalance').textContent=accounts[0].balance; 
+                s.addEventListener('change', ()=>{ 
+                    const a=accounts.find(x=>x.id===s.value); 
+                    if(a) document.getElementById('createAccountBalance').textContent=a.balance; 
+                }); 
+            } 
+        }
+        
+        function renderAccountsList() { 
+            const cont=document.getElementById('accountsList'); 
+            if(!cont) return; 
+            cont.innerHTML=accounts.map(a=>`<div class="account-card flex-between"><span><strong>${escapeHtml(a.name)}</strong> : ${a.balance} бал.</span><button class="btn-icon danger" onclick="deleteAccount('${a.id}')"><i class="fas fa-trash"></i></button></div>`).join(''); 
+        }
+        
+        window.deleteAccount = async id => { 
+            if(!confirm('Удалить?')) return; 
+            await fetch(SCRIPT_URL + '?action=deleteAccount&token=' + authToken + '&data=' + JSON.stringify({accountId:id})); 
+            await loadAccounts(); 
+        };
+        
+        document.getElementById('addAccountBtn')?.addEventListener('click', async ()=>{ 
+            const n=prompt('Название:'); 
+            if(n) { 
+                const b=parseInt(prompt('Баланс:'))||0; 
+                await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({account:{name:n, balance:b}})); 
+                await loadAccounts(); 
+            } 
+        });
+        
+        function renderUsersList() { 
+            const cont=document.getElementById('usersList'); 
+            if(!cont) return; 
+            cont.innerHTML=users.map(u=>`<div class="flex-between account-card"><span><strong>${escapeHtml(u.username)}</strong> (${u.role})</span><select id="role_${u.id}" onchange="updateUserRole('${u.id}')"><option value="user" ${u.role=='user'?'selected':''}>User</option><option value="partner" ${u.role=='partner'?'selected':''}>Partner</option><option value="admin" ${u.role=='admin'?'selected':''}>Admin</option></select></div>`).join(''); 
+        }
+        
+        window.updateUserRole = async id => { 
+            const r=document.getElementById('role_'+id).value; 
+            await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({userId:id, updates:{role:r}})); 
+            await loadUsers(); 
+        };
+        
+        async function checkAuth() { 
+            const t=localStorage.getItem('authToken'), u=localStorage.getItem('currentUser'); 
+            if(t&&u){ 
+                try { 
+                    if((await (await fetch(SCRIPT_URL + '?action=checkToken&data=' + JSON.stringify({token:t}))).json()).valid) { 
+                        authToken=t; 
+                        currentUser=JSON.parse(u); 
+                        loginScreen.classList.add('hidden'); 
+                        registerScreen.classList.add('hidden'); 
+                        mainApp.classList.remove('hidden'); 
+                        initApp(); 
+                        return; 
+                    } 
+                } catch(e) {} 
+            } 
+            showLogin(); 
+        }
+        
         loadSettings();
+        
         document.querySelectorAll('[data-theme]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-theme', b.dataset.theme); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-color', b.dataset.color); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-card-style]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-card-style', b.dataset.cardStyle); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-density]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-density', b.dataset.density); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-radius]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-radius', b.dataset.radius); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-view', b.dataset.view); saveSettings(); updateActiveSettings(); }));
-        document.getElementById('settingsToggle').addEventListener('click', ()=>document.getElementById('settingsPanel').classList.toggle('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click', ()=>{ const tab=b.dataset.tab; document.querySelectorAll('.tab-btn').forEach(bt=>bt.classList.remove('active')); b.classList.add('active'); ['orders','create','chat','accounts','users'].forEach(t=>document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('hidden')); document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.remove('hidden'); if(tab==='accounts') renderAccountsList(); if(tab==='users') renderUsersList(); if(tab==='chat') renderChat(); }));
+        
+        document.getElementById('settingsToggle')?.addEventListener('click', ()=>document.getElementById('settingsPanel').classList.toggle('hidden'));
+        document.getElementById('logoutBtn')?.addEventListener('click', logout);
+        
+        document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click', ()=>{ 
+            const tab=b.dataset.tab; 
+            document.querySelectorAll('.tab-btn').forEach(bt=>bt.classList.remove('active')); 
+            b.classList.add('active'); 
+            ['orders','create','chat','accounts','users'].forEach(t=>{
+                const el = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+                if (el) el.classList.add('hidden');
+            }); 
+            const targetTab = document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+            if (targetTab) targetTab.classList.remove('hidden');
+            if(tab==='accounts') renderAccountsList(); 
+            if(tab==='users') renderUsersList(); 
+            if(tab==='chat') {
+                initChatTab();
+            }
+        }));
+        
         document.getElementById('goToCreateBtn')?.addEventListener('click', ()=>document.querySelector('[data-tab="create"]').click());
+        
         checkAuth();
     </script>
 </body>
