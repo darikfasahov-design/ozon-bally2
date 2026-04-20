@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Ozon.Баллы — Полная система с чатом</title>
+    <title>Ozon.Баллы — Полная система</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; }
@@ -67,16 +67,21 @@
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.15), transparent 50%),
                         radial-gradient(circle at 80% 70%, rgba(236,72,153,0.1), transparent 60%);
-            pointer-events: none; z-index: -2;
+            pointer-events: none; z-index: -2; animation: bgPulse 12s infinite alternate;
         }
         
+        @keyframes bgPulse { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         
         .order-card { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
+        .order-card:nth-child(1) { animation-delay: 0.05s; } .order-card:nth-child(2) { animation-delay: 0.1s; }
+        .order-card:nth-child(3) { animation-delay: 0.15s; } .order-card:nth-child(4) { animation-delay: 0.2s; }
         
         .glass-card, .app-container, .chat-container, .form-container, .login-container, .order-card, .photo-preview, .settings-panel, .account-card {
-            background: var(--card-bg); backdrop-filter: blur(var(--blur));
+            background: var(--card-bg); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
             border: 1px solid var(--card-border); border-radius: var(--border-radius); box-shadow: var(--shadow);
             padding: var(--spacing); transition: transform 0.2s, box-shadow 0.3s;
         }
@@ -91,20 +96,23 @@
         
         h1 { font-size: calc(var(--font-size) * 1.8); font-weight: 600; background: linear-gradient(to right, var(--text-primary), var(--primary-light)); -webkit-background-clip: text; background-clip: text; color: transparent; }
         h2 { font-size: calc(var(--font-size) * 1.5); margin-bottom: var(--spacing); }
-        .badge { background: var(--primary); opacity: 0.8; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; }
+        .badge { background: var(--primary); opacity: 0.8; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; animation: pulse 2s infinite; }
         
         button, .btn-icon, .tab-btn {
             background: var(--primary); border: none; border-radius: var(--border-radius); padding: 10px 18px;
             color: white; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-size: var(--font-size);
+            position: relative; overflow: hidden;
         }
+        button::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; }
+        button:active::before { width: 200px; height: 200px; }
         button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); }
         button.success { background: var(--success); } button.danger { background: var(--danger); } button.warning { background: var(--warning); color: #1a1a2e; }
         
         .nav-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 20px; }
         .tab-btn { background: transparent; border: 1px solid var(--card-border); color: var(--text-primary); white-space: nowrap; }
-        .tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; } .tab-btn:hover { animation: shake 0.3s ease; }
         
-        input, select, textarea { width: 100%; padding: 12px var(--spacing); border-radius: var(--border-radius); border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text-primary); font-size: var(--font-size); outline: none; }
+        input, select, textarea { width: 100%; padding: 12px var(--spacing); border-radius: var(--border-radius); border: 1px solid var(--card-border); background: var(--input-bg); color: var(--text-primary); font-size: var(--font-size); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
         label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-secondary); }
         
@@ -115,6 +123,10 @@
         .setting-option:hover { transform: scale(1.05); } .setting-option.active { background: var(--primary); color: white; }
         
         .order-card { border-left: 4px solid var(--primary); } .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .order-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+        .tag { font-size: 0.7rem; padding: 4px 10px; border-radius: 40px; background: rgba(255,255,255,0.15); font-weight: 500; text-transform: uppercase; transition: transform 0.2s; }
+        .tag:hover { transform: scale(1.05); } .tag.vip { background: var(--vip); color: white; } .tag.urgent { background: var(--danger); color: white; }
+        .tag.new { background: var(--success); color: white; } .tag.problem { background: var(--warning); color: #1a1a2e; }
         .price-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin: 6px 0; } .profit { color: var(--success); font-weight: 700; }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing); } .full-width { grid-column: span 2; }
@@ -124,10 +136,11 @@
         .message.own { background: var(--primary); margin-left: auto; } .message-header { display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px; }
         
         .photo-upload-area { border: 2px dashed var(--card-border); border-radius: var(--border-radius); padding: 20px; text-align: center; cursor: pointer; margin-bottom: 16px; transition: all 0.3s; }
-        .photo-upload-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); }
+        .photo-upload-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); transform: scale(0.98); }
         .photos-preview { display: flex; gap: 12px; flex-wrap: wrap; } .photo-preview { position: relative; width: 100px; height: 100px; padding: 4px; animation: fadeInUp 0.3s ease; }
         .photo-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--border-radius) / 2); }
-        .photo-preview .remove-photo { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .photo-preview .remove-photo { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+        .photo-preview .remove-photo:hover { transform: scale(1.1); }
         
         .lightbox { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .lightbox img { max-width: 90%; max-height: 90%; border-radius: 20px; } .lightbox .close-lightbox { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
@@ -135,28 +148,16 @@
         .hidden { display: none !important; } .flex { display: flex; gap: 12px; align-items: center; } .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .flex-wrap { flex-wrap: wrap; } .w-full { width: 100%; } .mt-4 { margin-top: 16px; } .mb-4 { margin-bottom: 16px; }
         
-        .hint { background: rgba(245,158,11,0.15); border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: var(--border-radius); margin-bottom: 20px; }
+        .hint { background: rgba(245,158,11,0.15); border-left: 4px solid var(--warning); padding: 14px 18px; border-radius: var(--border-radius); margin-bottom: 20px; animation: pulse 3s infinite; }
         .account-card { margin-bottom: var(--spacing); animation: fadeInUp 0.4s ease; }
         .order-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; } .order-actions .btn-icon { flex: 0 1 auto; padding: 8px 12px; }
+        .sound-toggle { cursor: pointer; transition: transform 0.2s; } .sound-toggle:hover { transform: scale(1.1); animation: shake 0.3s ease; }
         
         .auth-container { max-width: 420px; margin: 0 auto; } .auth-switch { text-align: center; margin-top: 20px; opacity: 0.8; } .auth-switch a { color: var(--primary); cursor: pointer; }
         .status-message { margin-top: 16px; text-align: center; min-height: 20px; }
         
-        .dialog-item { cursor: pointer; transition: background 0.2s; padding: 12px; border-bottom: 1px solid var(--card-border); }
-        .dialog-item:hover { background: rgba(59, 130, 246, 0.2); }
-        .dialog-active { background: var(--primary); opacity: 0.8; }
-        
-        @media (max-width: 767px) { 
-            .form-row { grid-template-columns: 1fr; } 
-            .full-width { grid-column: span 1; }
-            #tabChat > div { grid-template-columns: 1fr !important; }
-            .dialogs-list { max-height: 200px !important; }
-        }
-        @media (min-width: 768px) { 
-            body { padding: 24px 32px; } 
-            .app-grid { max-width: 1200px; margin: 0 auto; } 
-            [data-view="cards"] .orders-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; } 
-        }
+        @media (max-width: 767px) { .form-row { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+        @media (min-width: 768px) { body { padding: 24px 32px; } .app-grid { max-width: 1200px; margin: 0 auto; } [data-view="cards"] .orders-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; } }
         @media (min-width: 1024px) { [data-view="cards"] .orders-container { grid-template-columns: repeat(3, 1fr); } }
     </style>
 </head>
@@ -190,12 +191,13 @@
                     <span class="badge" id="userNameBadge"></span>
                 </div>
                 <div class="flex">
+                    <span class="sound-toggle" id="soundToggle" onclick="toggleSound()"><i class="fas fa-volume-up" id="soundIcon"></i></span>
                     <button class="btn-icon" id="settingsToggle"><i class="fas fa-cog"></i></button>
                     <button class="btn-icon" id="themeToggle" onclick="toggleTheme()">🌙</button>
                     <button class="btn-icon" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
-            <!-- НАСТРОЙКИ -->
+            <!-- ПАНЕЛЬ НАСТРОЕК -->
             <div id="settingsPanel" class="settings-panel hidden">
                 <div class="flex-between"><h2><i class="fas fa-sliders-h"></i> Настройки</h2><button class="btn-icon" onclick="document.getElementById('settingsPanel').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
                 <div class="setting-row"><span>🎨 Тема</span><div class="setting-options" id="themeSettings"><button class="setting-option" data-theme="dark">🌙</button><button class="setting-option" data-theme="light">☀️</button></div></div>
@@ -204,6 +206,7 @@
                 <div class="setting-row"><span>📐 Плотность</span><div class="setting-options" id="densitySettings"><button class="setting-option" data-density="compact">Компакт</button><button class="setting-option" data-density="normal">Обычно</button><button class="setting-option" data-density="spacious">Простор</button></div></div>
                 <div class="setting-row"><span>🎯 Скругления</span><div class="setting-options" id="radiusSettings"><button class="setting-option" data-radius="sharp">Острые</button><button class="setting-option" data-radius="rounded">Закруг.</button><button class="setting-option" data-radius="round">Круглые</button></div></div>
                 <div class="setting-row"><span>📱 Вид</span><div class="setting-options" id="viewSettings"><button class="setting-option" data-view="cards">Карточки</button><button class="setting-option" data-view="table">Таблица</button><button class="setting-option" data-view="compact">Компакт</button></div></div>
+                <div class="setting-row"><span>🔊 Звуки</span><div class="setting-options"><button class="setting-option active" onclick="setSoundVolume('on')">Вкл</button><button class="setting-option" onclick="setSoundVolume('off')">Выкл</button></div></div>
                 <button class="secondary w-full mt-4" onclick="document.getElementById('settingsPanel').classList.add('hidden')">Закрыть</button>
             </div>
             <!-- НАВИГАЦИЯ -->
@@ -214,16 +217,17 @@
                 <button class="tab-btn" data-tab="accounts" id="adminTabAccounts" style="display:none;"><i class="fas fa-database"></i> Аккаунты</button>
                 <button class="tab-btn" data-tab="users" id="adminTabUsers" style="display:none;"><i class="fas fa-users-cog"></i> Польз.</button>
             </div>
-            <!-- ЗАЯВКИ -->
+            <!-- ВКЛАДКА ЗАЯВКИ -->
             <div id="tabOrders">
                 <div class="flex-between mb-4"><h2>📦 Заявки</h2><button id="goToCreateBtn"><i class="fas fa-plus"></i> Создать</button></div>
                 <div class="flex flex-wrap" style="gap:10px; margin-bottom:20px;">
+                    <select id="filterTag" style="flex:1;"><option value="">Все теги</option><option value="VIP">VIP</option><option value="Срочно">Срочно</option><option value="Проблемный">Проблемный</option><option value="Постоянный">Постоянный</option><option value="Новый">Новый</option></select>
                     <select id="filterStatus" style="flex:1;"><option value="">Все статусы</option><option value="В ожидании">В ожидании</option><option value="В работе">В работе</option><option value="Завершено">Завершено</option></select>
-                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i> Сброс</button>
+                    <button id="resetFilters" class="secondary"><i class="fas fa-sync"></i></button>
                 </div>
                 <div id="ordersContainer" class="orders-container"></div>
             </div>
-            <!-- СОЗДАНИЕ ЗАЯВКИ -->
+            <!-- ВКЛАДКА СОЗДАНИЕ -->
             <div id="tabCreate" class="hidden">
                 <h2>📝 Новая заявка</h2>
                 <div class="hint"><i class="fas fa-lightbulb"></i> <strong>Рекомендация:</strong> Оптимальная скидка — 10-15%.</div>
@@ -242,6 +246,17 @@
                             <div class="photo-upload-area" id="photoUploadArea"><i class="fas fa-cloud-upload-alt"></i><p>Нажмите или перетащите</p></div>
                             <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
                             <div class="photos-preview" id="photosPreview"></div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>🏷️ Теги</label>
+                            <div class="flex flex-wrap" id="createTagsContainer">
+                                <button type="button" class="tag-option secondary" data-tag="VIP">VIP</button>
+                                <button type="button" class="tag-option secondary" data-tag="Срочно">Срочно</button>
+                                <button type="button" class="tag-option secondary" data-tag="Проблемный">Проблемный</button>
+                                <button type="button" class="tag-option secondary" data-tag="Постоянный">Постоянный</button>
+                                <button type="button" class="tag-option secondary" data-tag="Новый">Новый</button>
+                            </div>
                         </div>
                         
                         <div id="createPointsBlock" style="display:none;">
@@ -268,70 +283,54 @@
                     </form>
                 </div>
             </div>
-            <!-- ЧАТ (ИСПРАВЛЕННЫЙ) -->
+            <!-- ВКЛАДКА ЧАТ -->
             <div id="tabChat" class="hidden">
                 <h2>💬 Чат</h2>
-                
-                <!-- ПАНЕЛЬ АДМИНИСТРАТОРА -->
-                <div id="adminChatPanel" style="display: none; margin-bottom: 16px; padding: 16px; background: var(--card-bg); border-radius: var(--border-radius);">
-                    <div style="margin-bottom: 8px;"><strong>👑 Панель администратора</strong> <small style="opacity: 0.7;">(отправка сообщений всем пользователям)</small></div>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <select id="adminRecipientSelect" style="flex: 2; min-width: 180px;">
-                            <option value="">-- Выберите получателя --</option>
-                        </select>
-                        <input type="text" id="adminMessageInput" placeholder="Сообщение от администратора..." style="flex: 3;">
-                        <button id="sendAdminMsgBtn" style="background: var(--vip);"><i class="fas fa-broadcast-tower"></i> Отправить</button>
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 280px 1fr; gap: 16px; min-height: 500px;">
-                    <div class="dialogs-list" style="background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); overflow-y: auto; max-height: 500px;">
-                        <div style="padding: 12px; border-bottom: 1px solid var(--card-border);">
-                            <h3 style="font-size: 14px;">📋 Диалоги</h3>
-                        </div>
-                        <div id="dialogsContainer" style="display: flex; flex-direction: column;"></div>
-                    </div>
-                    
-                    <div class="chat-area">
-                        <div id="currentDialogInfo" style="padding: 12px; background: var(--card-bg); backdrop-filter: blur(var(--blur)); border-radius: var(--border-radius); margin-bottom: 12px;">
-                            Выберите диалог
-                        </div>
-                        <div class="chat-container" style="height: 400px; display: flex; flex-direction: column;">
-                            <div id="chatMessages" class="chat-messages" style="flex: 1; overflow-y: auto;"></div>
-                            <div class="flex" style="margin-top: 12px;">
-                                <input type="text" id="chatInput" placeholder="Сообщение..." style="flex: 1;">
-                                <button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="chat-container">
+                    <div class="input-group"><label>Кому:</label><select id="chatRecipient"><option value="support">📞 Поддержка</option><option value="all">👥 Всем</option></select></div>
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="flex"><input type="text" id="chatInput" placeholder="Сообщение..."><button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button></div>
                 </div>
             </div>
-            <!-- АККАУНТЫ -->
+            <!-- ВКЛАДКА АККАУНТЫ -->
             <div id="tabAccounts" class="hidden">
                 <h2>💳 Аккаунты Ozon</h2>
                 <div id="accountsList"></div>
                 <button id="addAccountBtn" class="success mt-4"><i class="fas fa-plus-circle"></i> Добавить</button>
             </div>
-            <!-- ПОЛЬЗОВАТЕЛИ -->
+            <!-- ВКЛАДКА ПОЛЬЗОВАТЕЛИ -->
             <div id="tabUsers" class="hidden">
                 <h2>👥 Пользователи</h2>
                 <div id="usersList"></div>
             </div>
         </div>
     </div>
+    <!-- ЛАЙТБОКС -->
     <div id="lightbox" class="lightbox"><span class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">&times;</span><img id="lightboxImg" src=""></div>
-    
     <script>
-        // ========== НАСТРОЙКА ==========
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwwhtBMRuMPyOho_lwrD8Bv5byZnIXpVq0SCr3a7hGmF34RbqV_lgLebZHChFmyx7p/exec';
-        
         let currentUser = null, authToken = null, orders = [], accounts = [], users = [], chatMessages = [];
-        let uploadedPhotos = [];
-        let currentDialog = null;
-        let chatPollingInterval = null;
+        let uploadedPhotos = [], selectedTags = [];
         const body = document.body;
-        
-        // ========== НАСТРОЙКИ ==========
+        // Звуки
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true, soundVolume = 0.3;
+        function playSound(type) {
+            if (!soundEnabled) return;
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(soundVolume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            if (type === 'message') { osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1); }
+            else if (type === 'notification') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2); }
+            else if (type === 'success') { osc.frequency.setValueAtTime(500, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.2); }
+            else if (type === 'complete') { osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.2); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.3); }
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        window.toggleSound = () => { soundEnabled = !soundEnabled; document.getElementById('soundIcon').className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'; localStorage.setItem('soundEnabled', soundEnabled); if (soundEnabled) playSound('notification'); };
+        window.setSoundVolume = (lvl) => { if (lvl === 'off') { soundEnabled = false; document.getElementById('soundIcon').className = 'fas fa-volume-mute'; } else { soundEnabled = true; document.getElementById('soundIcon').className = 'fas fa-volume-up'; if (lvl === 'low') soundVolume = 0.15; else if (lvl === 'high') soundVolume = 0.5; else soundVolume = 0.3; } localStorage.setItem('soundEnabled', soundEnabled); localStorage.setItem('soundVolume', soundVolume); };
+        // Настройки
         function loadSettings() {
             const s = JSON.parse(localStorage.getItem('ozon_settings') || '{}');
             if (s.theme) body.setAttribute('data-theme', s.theme);
@@ -343,7 +342,6 @@
             updateActiveSettings();
             document.getElementById('themeToggle').textContent = body.getAttribute('data-theme') === 'dark' ? '🌙' : '☀️';
         }
-        
         function saveSettings() {
             localStorage.setItem('ozon_settings', JSON.stringify({
                 theme: body.getAttribute('data-theme'), color: body.getAttribute('data-color'),
@@ -351,32 +349,23 @@
                 radius: body.getAttribute('data-radius'), view: body.getAttribute('data-view')
             }));
         }
-        
         function updateActiveSettings() {
             ['theme','color','card-style','density','radius','view'].forEach(attr => {
                 const v = body.getAttribute(`data-${attr}`);
                 document.querySelectorAll(`[data-${attr}]`).forEach(b => b.classList.toggle('active', b.dataset[attr.replace(/-/g,'')] === v));
             });
         }
-        
         window.toggleTheme = () => {
             const cur = body.getAttribute('data-theme'), newT = cur === 'dark' ? 'light' : 'dark';
             body.setAttribute('data-theme', newT);
             document.getElementById('themeToggle').textContent = newT === 'dark' ? '🌙' : '☀️';
             saveSettings(); updateActiveSettings();
         };
-        
-        // ========== АВТОРИЗАЦИЯ ==========
+        // Авторизация
         const loginScreen = document.getElementById('loginScreen'), registerScreen = document.getElementById('registerScreen'), mainApp = document.getElementById('mainApp');
         window.showLogin = () => { loginScreen.classList.remove('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.add('hidden'); };
         window.showRegister = () => { loginScreen.classList.add('hidden'); registerScreen.classList.remove('hidden'); mainApp.classList.add('hidden'); };
-        window.logout = () => { 
-            if (chatPollingInterval) clearInterval(chatPollingInterval);
-            localStorage.removeItem('authToken'); 
-            localStorage.removeItem('currentUser'); 
-            showLogin(); 
-        };
-        
+        window.logout = () => { localStorage.removeItem('authToken'); localStorage.removeItem('currentUser'); showLogin(); };
         async function login() {
             const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value;
             const st = document.getElementById('loginStatus');
@@ -385,38 +374,18 @@
             try {
                 let r = await fetch(SCRIPT_URL + '?action=login&data=' + JSON.stringify({username:u, password:p}));
                 let d = await r.json();
-                
                 if (!d.success && d.error === 'Invalid username or password') {
                     r = await fetch(SCRIPT_URL + '?action=register&data=' + JSON.stringify({username:u, password:p}));
                     d = await r.json();
                 }
-                
                 if (d.success) {
-                    authToken = d.token;
-                    let userId = d.userId;
-                    let role = d.role;
-                    
-                    // Админ по логину
-                    if (u === 'admin' || u === 'Ильдар' || userId === '3062d819-2262-468f-907e-3112d0a701f3') {
-                        role = 'admin';
-                    }
-                    
-                    currentUser = { username: d.username, role: role, id: userId };
-                    localStorage.setItem('authToken', authToken);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    loginScreen.classList.add('hidden');
-                    registerScreen.classList.add('hidden');
-                    mainApp.classList.remove('hidden');
+                    authToken = d.token; currentUser = { username: d.username, role: d.role, id: d.userId };
+                    localStorage.setItem('authToken', authToken); localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    loginScreen.classList.add('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.remove('hidden');
                     initApp();
-                } else {
-                    st.textContent = '❌ ' + (d.error || 'Ошибка');
-                }
-            } catch(e) {
-                st.textContent = '❌ Ошибка соединения: ' + e.message;
-            }
+                } else { st.textContent = '❌ ' + (d.error || 'Ошибка'); }
+            } catch(e) { st.textContent = '❌ Ошибка соединения'; }
         }
-        
         async function register() {
             const u = document.getElementById('regUsername').value.trim(), p = document.getElementById('regPassword').value, c = document.getElementById('regConfirmPassword').value;
             const st = document.getElementById('registerStatus');
@@ -434,185 +403,111 @@
                 } else { st.textContent = '❌ ' + (d.error || 'Ошибка'); }
             } catch(e) { st.textContent = '❌ Ошибка соединения'; }
         }
-        
         document.getElementById('loginBtn').addEventListener('click', login);
         document.getElementById('registerBtn').addEventListener('click', register);
         document.getElementById('loginPassword').addEventListener('keypress', e => { if(e.key==='Enter') login(); });
-        
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.getElementById('regConfirmPassword').addEventListener('keypress', e => { if(e.key==='Enter') register(); });
+        // Инициализация приложения
         async function initApp() {
             document.getElementById('roleBadge').textContent = currentUser.role;
             document.getElementById('userNameBadge').textContent = currentUser.username;
-            const isAdmin = currentUser.role === 'admin';
-            const isPartner = currentUser.role === 'partner';
-            
+            const isAdmin = currentUser.role === 'admin', isPartner = currentUser.role === 'partner';
             document.getElementById('adminTabAccounts').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('adminTabUsers').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('createPointsBlock').style.display = (isAdmin||isPartner) ? 'block' : 'none';
             document.getElementById('createProfitDisplay').style.display = (isAdmin||isPartner) ? 'flex' : 'none';
-            
-            const adminPanel = document.getElementById('adminChatPanel');
-            if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
-            
-            await loadOrders(); 
-            await loadAccounts(); 
-            await loadUsers(); 
-            await loadChat();
-            renderOrders(); 
-            initCreateForm();
-            
-            if (chatPollingInterval) clearInterval(chatPollingInterval);
-            chatPollingInterval = setInterval(async () => { await loadChat(); }, 3000);
+            await loadOrders(); await loadAccounts(); await loadUsers(); await loadChat();
+            renderOrders(); renderChatRecipients(); initCreateForm();
         }
-        
+        // Загрузка данных
         async function loadOrders() {
-            try { const r = await fetch(SCRIPT_URL + '?action=getOrders&token=' + authToken); orders = (await r.json()).orders || []; renderOrders(); } catch(e) { console.error(e); }
+            try { const r = await fetch(SCRIPT_URL + '?action=getOrders&token=' + authToken); orders = (await r.json()).orders || []; renderOrders(); } catch(e) {}
         }
-        
         async function loadAccounts() {
-            try { const r = await fetch(SCRIPT_URL + '?action=getAccounts&token=' + authToken); accounts = (await r.json()).accounts || []; updateAccountSelects(); renderAccountsList(); } catch(e) { console.error(e); }
+            try { const r = await fetch(SCRIPT_URL + '?action=getAccounts&token=' + authToken); accounts = (await r.json()).accounts || []; updateAccountSelects(); renderAccountsList(); } catch(e) {}
         }
-        
         async function loadUsers() {
             if (currentUser.role !== 'admin') return;
-            try { 
-                const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); 
-                users = (await r.json()).users || []; 
-                renderUsersList(); 
-                updateAdminRecipientList();
-            } catch(e) { console.error(e); }
+            try { const r = await fetch(SCRIPT_URL + '?action=getUsers&token=' + authToken); users = (await r.json()).users || []; renderUsersList(); renderChatRecipients(); } catch(e) {}
         }
-        
-        function updateAdminRecipientList() {
-            const select = document.getElementById('adminRecipientSelect');
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">-- Выберите получателя --</option>';
-            select.innerHTML += '<option value="all">👥 Всем пользователям</option>';
-            
-            users.forEach(user => {
-                if (user.id !== currentUser.id) {
-                    select.innerHTML += `<option value="${user.id}">👤 ${escapeHtml(user.username)}</option>`;
-                }
-            });
-        }
-        
         async function loadChat() {
             try {
                 const r = await fetch(SCRIPT_URL + '?action=getAllMessages&token=' + authToken);
                 const data = await r.json();
-                chatMessages = data.messages || [];
-                
-                if (document.getElementById('tabChat') && !document.getElementById('tabChat').classList.contains('hidden')) {
-                    renderDialogs();
-                    if (currentDialog) {
-                        renderChatMessages();
-                    }
-                }
+                chatMessages = (data.messages || []).map(msg => ({
+                    ...msg,
+                    senderId: msg.senderId || msg.sender,
+                    recipientId: msg.recipientId || msg.recipient,
+                    senderName: msg.senderName || msg.sender,
+                    recipientName: msg.recipientName || msg.recipient
+                }));
+                renderChat();
             } catch(e) { console.error('Ошибка загрузки чата:', e); }
         }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
+        // Рендер заявок
+        function formatDate(d) { if(!d) return ''; if(d.includes('T')) return d.split('T')[0].split('-').reverse().join('.'); const p=d.split('.'); return p.length===3?`${p[0]}.${p[1]}.${p[2].slice(-2)}`:d; }
         function renderOrders() {
             const cont = document.getElementById('ordersContainer'); if(!cont) return;
-            const statF = document.getElementById('filterStatus')?.value || '';
-            let filt = orders.filter(o => (!statF || o['Статус'] === statF));
+            const tagF = document.getElementById('filterTag')?.value || '', statF = document.getElementById('filterStatus')?.value || '';
+            let filt = orders.filter(o => (!tagF || (o['Теги']||'').includes(tagF)) && (!statF || o['Статус'] === statF));
             if(!filt.length) { cont.innerHTML = '<p style="opacity:0.7; text-align:center;">Нет заявок</p>'; return; }
-            
-            const isAdminOrPartner = (currentUser.role === 'admin' || currentUser.role === 'partner');
-            
             cont.innerHTML = filt.map(o => {
                 const price = parseFloat(o['Цена Ozon'])||0, disc = parseFloat(o['Скидка %'])||0, pts = parseFloat(o['Баллы'])||0;
-                const clientDisc = Math.round(price * disc / 100);
-                const status = o['Статус']||'В ожидании';
-                
-                let actionsHtml = '';
-                if (isAdminOrPartner) {
-                    actionsHtml = `
-                        <div class="order-actions">
-                            <button class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</button>
-                            ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
-                        </div>
-                    `;
-                }
-                
+                const clientDisc = Math.round(price * disc / 100), profit = (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-clientDisc : 0;
+                const tags = (o['Теги']||'').split(',').filter(t=>t), status = o['Статус']||'В ожидании';
+                let photosHtml = '';
+                if(o['Фото']) { try { const photos = JSON.parse(o['Фото']); photosHtml = `<div class="order-photos" style="display:flex; gap:6px; margin:10px 0;">${photos.map(p=>`<img src="${p}" onclick="showLightbox('${p}')" style="width:50px;height:50px;object-fit:cover;border-radius:10px;cursor:pointer;">`).join('')}</div>`; } catch(e) {} }
                 return `<div class="order-card">
-                    <div class="order-header"><strong><i class="fas fa-box"></i> ${escapeHtml(o['Товар'])}</strong><span class="badge">${status}</span></div>
-                    <div class="price-row"><span>👤 Клиент:</span><span>${escapeHtml(o['Имя'])} / ${escapeHtml(o['Контакт'])}</span></div>
+                    <div class="order-header"><strong><i class="fas fa-box"></i> ${o['Товар']}</strong><span class="badge">${status}</span></div>
+                    <div class="order-tags">${tags.map(t=>`<span class="tag ${t==='VIP'?'vip':t==='Срочно'?'urgent':t==='Новый'?'new':'problem'}">${t}</span>`).join('')}</div>
+                    ${photosHtml}
+                    <div class="price-row"><span>👤 Клиент:</span><span>${o['Имя']} / ${o['Контакт']}</span></div>
                     <div class="price-row"><span>💰 Цена на Ozon:</span><span>${price.toLocaleString()} ₽</span></div>
                     <div class="price-row"><span>🏷️ Цена со скидкой:</span><span><strong>${(price - clientDisc).toLocaleString()} ₽</strong></span></div>
-                    ${actionsHtml}
+                    ${(currentUser.role==='admin'||currentUser.role==='partner')?`<div class="price-row profit"><span>💵 Прибыль:</span><span>${profit.toLocaleString()} ₽</span></div>`:''}
+                    <div class="price-row"><span>📅 ${o['Создал (Имя)']||'—'} / ${formatDate(o['Дата создания'])}</span></div>
+                    <div class="order-actions">
+                        <a href="${o['Ссылка Ozon']||'#'}" target="_blank" class="btn-icon" onclick="markAsOrdered('${o['ID заявки']}')"><i class="fas fa-shopping-cart"></i> Заказать</a>
+                        ${status === 'В работе' ? `<button class="btn-icon success" onclick="markAsCompleted('${o['ID заявки']}')"><i class="fas fa-check"></i> Завершить</button>` : ''}
+                        ${currentUser.role==='admin' ? `<button class="btn-icon danger" onclick="deleteOrder('${o['ID заявки']}')"><i class="fas fa-trash"></i> Удалить</button>` : ''}
+                    </div>
                 </div>`;
             }).join('');
         }
-        
-        window.markAsOrdered = async id => { 
-            await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'В работе'}})); 
-            await loadOrders(); 
-        };
-        window.markAsCompleted = async id => { 
-            await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'Завершено'}})); 
-            await loadOrders(); 
-        };
-        
+        window.showLightbox = src => { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').style.display = 'flex'; };
+        window.markAsOrdered = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'В работе'}})); playSound('success'); await loadOrders(); };
+        window.markAsCompleted = async id => { await fetch(SCRIPT_URL + '?action=updateOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id, updates:{'Статус':'Завершено'}})); playSound('complete'); await loadOrders(); };
+        window.deleteOrder = async id => { if(!confirm('Удалить?')) return; await fetch(SCRIPT_URL + '?action=deleteOrder&token=' + authToken + '&data=' + JSON.stringify({orderId:id})); playSound('notification'); await loadOrders(); };
+        // Фильтры
+        document.getElementById('filterTag')?.addEventListener('change', renderOrders);
         document.getElementById('filterStatus')?.addEventListener('change', renderOrders);
-        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterStatus').value=''; renderOrders(); });
-        
+        document.getElementById('resetFilters')?.addEventListener('click', ()=>{ document.getElementById('filterTag').value=''; document.getElementById('filterStatus').value=''; renderOrders(); });
+        // Форма создания
         function initCreateForm() {
+            document.querySelectorAll('[data-tag]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); const t=b.dataset.tag; if(selectedTags.includes(t)){ selectedTags=selectedTags.filter(x=>x!==t); b.classList.remove('active'); } else { selectedTags.push(t); b.classList.add('active'); } }));
             const photoInput = document.getElementById('photoInput'), uploadArea = document.getElementById('photoUploadArea');
-            if (uploadArea) {
-                uploadArea.addEventListener('click', ()=>photoInput.click());
-                uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--primary)'; });
-                uploadArea.addEventListener('dragleave', ()=>uploadArea.style.borderColor='var(--card-border)');
-                uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--card-border)'; handleFiles(e.dataTransfer.files); });
-            }
-            if (photoInput) photoInput.addEventListener('change', e=>handleFiles(e.target.files));
-            ['createProductPrice','createDiscountPercent','createPointsUsed'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('input', updateCreateCalculation);
-            });
+            uploadArea.addEventListener('click', ()=>photoInput.click());
+            uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--primary)'; });
+            uploadArea.addEventListener('dragleave', ()=>uploadArea.style.borderColor='var(--card-border)');
+            uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='var(--card-border)'; handleFiles(e.dataTransfer.files); });
+            photoInput.addEventListener('change', e=>handleFiles(e.target.files));
+            ['createProductPrice','createDiscountPercent','createPointsUsed'].forEach(id => document.getElementById(id).addEventListener('input', updateCreateCalculation));
             updateCreateCalculation();
         }
-        
         function handleFiles(files) {
             if(uploadedPhotos.length >= 3) { alert('Максимум 3 фото'); return; }
-            Array.from(files).slice(0, 3 - uploadedPhotos.length).forEach(f => { 
-                if(f.size > 5*1024*1024) { alert('Файл > 5 МБ'); return; } 
-                const r=new FileReader(); 
-                r.onload=e=>{ uploadedPhotos.push(e.target.result); renderPhotoPreviews(); }; 
-                r.readAsDataURL(f); 
-            });
+            Array.from(files).slice(0, 3 - uploadedPhotos.length).forEach(f => { if(f.size > 5*1024*1024) { alert('Файл > 5 МБ'); return; } const r=new FileReader(); r.onload=e=>{ uploadedPhotos.push(e.target.result); renderPhotoPreviews(); }; r.readAsDataURL(f); });
         }
-        
-        function renderPhotoPreviews() { 
-            const previewsDiv = document.getElementById('photosPreview');
-            if (previewsDiv) {
-                previewsDiv.innerHTML = uploadedPhotos.map((p,i)=>`<div class="photo-preview"><img src="${p}"><span class="remove-photo" onclick="removePhoto(${i})">&times;</span></div>`).join('');
-            }
-        }
-        
+        function renderPhotoPreviews() { document.getElementById('photosPreview').innerHTML = uploadedPhotos.map((p,i)=>`<div class="photo-preview"><img src="${p}"><span class="remove-photo" onclick="removePhoto(${i})">&times;</span></div>`).join(''); }
         window.removePhoto = i => { uploadedPhotos.splice(i,1); renderPhotoPreviews(); };
-        
         function updateCreateCalculation() {
-            const price = parseFloat(document.getElementById('createProductPrice')?.value)||0, perc = parseFloat(document.getElementById('createDiscountPercent')?.value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
+            const price = parseFloat(document.getElementById('createProductPrice').value)||0, perc = parseFloat(document.getElementById('createDiscountPercent').value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
             const disc = Math.round(price * perc / 100);
-            const discountSpan = document.getElementById('createClientDiscount');
-            const paymentSpan = document.getElementById('createClientPayment');
-            if (discountSpan) discountSpan.textContent = disc.toLocaleString() + ' ₽';
-            if (paymentSpan) paymentSpan.textContent = (price - disc).toLocaleString() + ' ₽';
-            if (currentUser?.role === 'admin' || currentUser?.role === 'partner') {
-                const profitSpan = document.getElementById('createProfit');
-                if (profitSpan) profitSpan.textContent = (price - pts - disc).toLocaleString() + ' ₽';
-            }
+            document.getElementById('createClientDiscount').textContent = disc.toLocaleString() + ' ₽';
+            document.getElementById('createClientPayment').textContent = (price - disc).toLocaleString() + ' ₽';
+            if (currentUser?.role === 'admin' || currentUser?.role === 'partner') document.getElementById('createProfit').textContent = (price - pts - disc).toLocaleString() + ' ₽';
         }
-        
-        document.getElementById('createOrderForm')?.addEventListener('submit', async e => {
+        document.getElementById('createOrderForm').addEventListener('submit', async e => {
             e.preventDefault(); const st = document.getElementById('createFormStatus');
             const price = parseFloat(document.getElementById('createProductPrice').value)||0, perc = parseFloat(document.getElementById('createDiscountPercent').value)||0, pts = parseFloat(document.getElementById('createPointsUsed')?.value)||0;
             const disc = Math.round(price * perc / 100);
@@ -623,392 +518,108 @@
                 productPrice: price, pointsUsed: pts, discountPercent: perc, clientDiscount: disc, clientPayment: price - disc,
                 profit: (currentUser.role==='admin'||currentUser.role==='partner') ? price-pts-disc : 0,
                 ozonAccount: document.getElementById('createOzonAccount')?.value || '', deliveryAddress: document.getElementById('createDeliveryAddress').value,
-                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: '[]', photos: uploadedPhotos,
+                comment: document.getElementById('createComment').value, status: 'В ожидании', tags: selectedTags.join(','), photos: uploadedPhotos,
                 createdBy: currentUser.id, createdByName: currentUser.username
             };
             if (!order.customerName || !order.productName || !order.productUrl) { st.textContent = '⚠️ Заполните поля'; return; }
             st.textContent = '⏳ Создание...';
             try {
                 const r = await fetch(SCRIPT_URL + '?action=addOrder&token=' + authToken + '&data=' + JSON.stringify({order}));
-                if ((await r.json()).success) { 
-                    st.textContent = '✅ Создано!'; 
-                    document.getElementById('createOrderForm').reset(); 
-                    uploadedPhotos = []; 
-                    renderPhotoPreviews(); 
-                    await loadOrders(); 
-                    setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); 
-                }
+                if ((await r.json()).success) { playSound('notification'); st.textContent = '✅ Создано!'; document.getElementById('createOrderForm').reset(); uploadedPhotos = []; selectedTags = []; renderPhotoPreviews(); document.querySelectorAll('[data-tag]').forEach(b => b.classList.remove('active')); await loadOrders(); setTimeout(()=> document.querySelector('[data-tab="orders"]').click(), 1000); }
                 else st.textContent = '❌ Ошибка';
             } catch(ex) { st.textContent = '❌ Ошибка'; }
         });
-        
-        // ========== ЧАТ (ИСПРАВЛЕННЫЙ) ==========
-        function renderDialogs() {
-            const container = document.getElementById('dialogsContainer');
-            if (!container) return;
-            
-            const dialogs = new Map();
-            
-            // Собираем уникальные диалоги из сообщений
-            chatMessages.forEach(msg => {
-                let dialogId = null;
-                let dialogName = null;
-                
-                // Определяем ID диалога (собеседника)
-                if (msg.senderId === currentUser.id) {
-                    dialogId = msg.recipientId;
-                    dialogName = msg.recipientName;
-                } else if (msg.recipientId === currentUser.id) {
-                    dialogId = msg.senderId;
-                    dialogName = msg.senderName;
-                } else if (currentUser.role === 'admin') {
-                    // Для админа - показываем все диалоги, где он не участник
-                    if (msg.senderId !== currentUser.id && msg.recipientId !== currentUser.id) {
-                        dialogId = msg.senderId;
-                        dialogName = msg.senderName;
-                    }
-                }
-                
-                if (dialogId && dialogId !== 'all' && dialogId !== currentUser.id) {
-                    if (!dialogs.has(dialogId)) {
-                        dialogs.set(dialogId, {
-                            userId: dialogId,
-                            userName: dialogName || 'Пользователь',
-                            lastMessage: msg.text,
-                            lastTime: msg.timestamp || 0
-                        });
-                    } else {
-                        const dialog = dialogs.get(dialogId);
-                        if ((msg.timestamp || 0) > dialog.lastTime) {
-                            dialog.lastMessage = msg.text;
-                            dialog.lastTime = msg.timestamp || 0;
-                        }
-                    }
+        // Чат
+        function renderChatRecipients() {
+            const select = document.getElementById('chatRecipient');
+            if (!select) return;
+            select.innerHTML = '';
+            const supportOption = document.createElement('option');
+            supportOption.value = 'support';
+            supportOption.textContent = '📞 Поддержка';
+            select.appendChild(supportOption);
+            const allOption = document.createElement('option');
+            allOption.value = 'all';
+            allOption.textContent = '👥 Всем';
+            select.appendChild(allOption);
+            users.forEach(u => {
+                if (u.id !== currentUser.id) {
+                    const option = document.createElement('option');
+                    option.value = u.id;
+                    option.textContent = `👤 ${u.username} (${u.role})`;
+                    select.appendChild(option);
                 }
             });
-            
-            // Добавляем общий чат
-            const hasGeneralChat = chatMessages.some(msg => msg.recipientId === 'all' || msg.senderId === 'all');
-            if (hasGeneralChat || currentUser.role === 'admin') {
-                dialogs.set('all', {
-                    userId: 'all',
-                    userName: '📢 Общий чат',
-                    lastMessage: 'Сообщения для всех',
-                    lastTime: Math.max(...chatMessages.filter(m => m.recipientId === 'all' || m.senderId === 'all').map(m => m.timestamp || 0), 0)
-                });
-            }
-            
-            // Для админа - добавляем всех пользователей, даже если диалога не было
-            if (currentUser.role === 'admin') {
-                users.forEach(user => {
-                    if (user.id !== currentUser.id && !dialogs.has(user.id)) {
-                        dialogs.set(user.id, {
-                            userId: user.id,
-                            userName: user.username,
-                            lastMessage: 'Нет сообщений',
-                            lastTime: 0
-                        });
-                    }
-                });
-            }
-            
-            const sortedDialogs = Array.from(dialogs.values()).sort((a, b) => b.lastTime - a.lastTime);
-            
-            if (sortedDialogs.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.7;">Нет диалогов</div>';
-                return;
-            }
-            
-            container.innerHTML = sortedDialogs.map(dialog => `
-                <div class="dialog-item ${currentDialog && currentDialog.userId === dialog.userId ? 'dialog-active' : ''}" 
-                     data-user-id="${dialog.userId}" 
-                     onclick="selectDialog('${dialog.userId}', '${escapeHtml(dialog.userName).replace(/'/g, "\\'")}')">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>${escapeHtml(dialog.userName)}</strong>
-                        <small style="font-size: 10px;">${dialog.lastTime ? new Date(dialog.lastTime).toLocaleTimeString() : ''}</small>
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        ${escapeHtml((dialog.lastMessage || '').substring(0, 50))}${(dialog.lastMessage || '').length > 50 ? '...' : ''}
-                    </div>
-                </div>
-            `).join('');
         }
-        
-        window.selectDialog = function(userId, userName) {
-            currentDialog = { userId: userId, userName: userName };
-            
-            // Обновляем активный класс во всех диалогах
-            document.querySelectorAll('.dialog-item').forEach(el => {
-                if (el.dataset.userId === userId) {
-                    el.classList.add('dialog-active');
-                } else {
-                    el.classList.remove('dialog-active');
-                }
-            });
-            
-            const infoDiv = document.getElementById('currentDialogInfo');
-            if (infoDiv) {
-                infoDiv.innerHTML = `<span><strong>💬 Диалог с ${escapeHtml(userName)}</strong></span>`;
-            }
-            
-            renderChatMessages();
-        };
-        
-        function renderChatMessages() {
+        function renderChat() {
             const container = document.getElementById('chatMessages');
-            if (!container || !currentDialog) return;
-            
-            let filteredMessages = [];
-            
-            if (currentDialog.userId === 'all') {
-                // Общий чат: все сообщения с recipientId = 'all' или senderId = 'all'
-                filteredMessages = chatMessages.filter(msg => msg.recipientId === 'all' || msg.senderId === 'all');
-            } else {
-                // Личный диалог: сообщения между текущим пользователем и выбранным
-                filteredMessages = chatMessages.filter(msg => 
-                    (msg.senderId === currentUser.id && msg.recipientId === currentDialog.userId) ||
-                    (msg.recipientId === currentUser.id && msg.senderId === currentDialog.userId) ||
-                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
-                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id)
-                );
-            }
-            
+            const selectedRecipientId = document.getElementById('chatRecipient')?.value || 'all';
+            if (!container) return;
+            let filteredMessages = chatMessages.filter(msg => {
+                if (currentUser.role === 'admin') {
+                    if (selectedRecipientId === 'support') {
+                        return msg.recipientId === 'support' || msg.senderId === 'support';
+                    }
+                    if (selectedRecipientId !== 'all') {
+                        return (msg.senderId === currentUser.id && msg.recipientId === selectedRecipientId) ||
+                               (msg.recipientId === currentUser.id && msg.senderId === selectedRecipientId) ||
+                               (msg.senderId === selectedRecipientId && msg.recipientId === 'support');
+                    }
+                    return msg.senderId === currentUser.id || msg.recipientId === currentUser.id;
+                }
+                const isMyMessage = msg.senderId === currentUser.id || msg.recipientId === currentUser.id;
+                if (!isMyMessage) return false;
+                if (selectedRecipientId === 'all') return true;
+                if (selectedRecipientId === 'support') return msg.recipientId === 'support' || msg.senderId === 'support';
+                return (msg.senderId === currentUser.id && msg.recipientId === selectedRecipientId) ||
+                       (msg.recipientId === currentUser.id && msg.senderId === selectedRecipientId);
+            });
             filteredMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            
-            if (filteredMessages.length === 0) {
-                container.innerHTML = '<p style="opacity:0.7; text-align:center; padding: 40px;">Нет сообщений. Напишите что-нибудь!</p>';
-                return;
-            }
-            
+            if (filteredMessages.length === 0) { container.innerHTML = '<p style="opacity:0.7; text-align:center;">Нет сообщений</p>'; return; }
             container.innerHTML = filteredMessages.map(msg => {
                 const isOwn = msg.senderId === currentUser.id;
-                const senderName = msg.senderName || 'Пользователь';
-                
                 return `<div class="message ${isOwn ? 'own' : ''}">
-                    <div class="message-header">
-                        <span><strong>${escapeHtml(senderName)}</strong></span>
-                        <span>${msg.time || ''}</span>
-                    </div>
-                    <div>${escapeHtml(msg.text)}</div>
+                    <div class="message-header"><span><strong>${msg.senderName || 'Пользователь'}</strong> → ${msg.recipientName || 'Группа'}</span><span>${msg.time || ''}</span></div>
+                    <div>${msg.text}</div>
                 </div>`;
             }).join('');
-            
             container.scrollTop = container.scrollHeight;
         }
-        
-        function initChatTab() {
-            renderDialogs();
-            if (!currentDialog && document.querySelector('.dialog-item')) {
-                const firstDialog = document.querySelector('.dialog-item');
-                const userId = firstDialog.dataset.userId;
-                const userName = firstDialog.querySelector('strong')?.textContent || 'Пользователь';
-                selectDialog(userId, userName);
-            } else if (currentDialog) {
-                renderChatMessages();
-            }
-        }
-        
         document.getElementById('sendChatBtn')?.addEventListener('click', async () => {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !currentDialog) {
-                if (!currentDialog) alert('Выберите диалог');
-                return;
-            }
-            
-            let recipientId, recipientName;
-            
-            if (currentDialog.userId === 'all') {
-                recipientId = 'all';
-                recipientName = 'all';
-            } else {
-                recipientId = currentDialog.userId;
-                recipientName = currentDialog.userName;
-            }
-            
-            const message = {
-                senderId: currentUser.id,
-                senderName: currentUser.username,
-                recipientId: recipientId,
-                recipientName: recipientName,
-                text: text,
-                time: new Date().toLocaleTimeString('ru-RU'),
-                timestamp: Date.now()
-            };
-            
-            // Оптимистичное добавление в UI
+            const input = document.getElementById('chatInput'), text = input.value.trim();
+            if (!text) return;
+            const recipientId = document.getElementById('chatRecipient').value;
+            let recipientName = recipientId;
+            if (recipientId === 'support') recipientName = 'Поддержка';
+            else if (recipientId === 'all') recipientName = 'Всем';
+            else { const u = users.find(u => u.id === recipientId); recipientName = u ? u.username : recipientId; }
+            const message = { senderId: currentUser.id, senderName: currentUser.username, recipientId, recipientName, text, time: new Date().toLocaleTimeString('ru-RU'), timestamp: Date.now() };
             chatMessages.push(message);
-            renderChatMessages();
-            renderDialogs();
-            input.value = '';
-            
-            try {
-                await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
-            } catch(e) {
-                console.error('Ошибка отправки:', e);
-            }
+            await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
+            renderChat(); input.value = ''; playSound('message');
         });
-        
-        document.getElementById('sendAdminMsgBtn')?.addEventListener('click', async () => {
-            if (currentUser.role !== 'admin') {
-                alert('Эта функция только для администратора');
-                return;
-            }
-            
-            const select = document.getElementById('adminRecipientSelect');
-            const input = document.getElementById('adminMessageInput');
-            const recipientValue = select.value;
-            const text = input.value.trim();
-            
-            if (!recipientValue) {
-                alert('Выберите получателя');
-                return;
-            }
-            if (!text) {
-                alert('Введите сообщение');
-                return;
-            }
-            
-            let targetUsers = [];
-            
-            if (recipientValue === 'all') {
-                targetUsers = users.filter(u => u.id !== currentUser.id);
-                targetUsers.push({ id: 'all', name: 'all' });
-            } else {
-                const user = users.find(u => u.id === recipientValue);
-                if (user) targetUsers.push({ id: user.id, name: user.username });
-            }
-            
-            for (const target of targetUsers) {
-                const message = {
-                    senderId: currentUser.id,
-                    senderName: `Админ (${currentUser.username})`,
-                    recipientId: target.id,
-                    recipientName: target.name,
-                    text: text,
-                    time: new Date().toLocaleTimeString('ru-RU'),
-                    timestamp: Date.now()
-                };
-                
-                chatMessages.push(message);
-                
-                try {
-                    await fetch(SCRIPT_URL + '?action=addMessage&token=' + authToken + '&data=' + JSON.stringify({message}));
-                } catch(e) {
-                    console.error('Ошибка отправки:', e);
-                }
-            }
-            
-            renderDialogs();
-            if (currentDialog && (currentDialog.userId === recipientValue || recipientValue === 'all')) {
-                renderChatMessages();
-            }
-            
-            input.value = '';
-            alert(`✅ Сообщение отправлено ${targetUsers.length} получателям`);
-        });
-        
-        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('sendChatBtn')?.click();
-        });
-        document.getElementById('adminMessageInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('sendAdminMsgBtn')?.click();
-        });
-        
-        function updateAccountSelects() { 
-            const s=document.getElementById('createOzonAccount'); 
-            if(s) s.innerHTML=accounts.map(a=>`<option value="${a.id}">${escapeHtml(a.name)} (${a.balance} бал.)</option>`).join(''); 
-            if(accounts.length && s){ 
-                document.getElementById('createAccountBalance').textContent=accounts[0].balance; 
-                s.addEventListener('change', ()=>{ 
-                    const a=accounts.find(x=>x.id===s.value); 
-                    if(a) document.getElementById('createAccountBalance').textContent=a.balance; 
-                }); 
-            } 
-        }
-        
-        function renderAccountsList() { 
-            const cont=document.getElementById('accountsList'); 
-            if(!cont) return; 
-            cont.innerHTML=accounts.map(a=>`<div class="account-card flex-between"><span><strong>${escapeHtml(a.name)}</strong> : ${a.balance} бал.</span><button class="btn-icon danger" onclick="deleteAccount('${a.id}')"><i class="fas fa-trash"></i></button></div>`).join(''); 
-        }
-        
-        window.deleteAccount = async id => { 
-            if(!confirm('Удалить?')) return; 
-            await fetch(SCRIPT_URL + '?action=deleteAccount&token=' + authToken + '&data=' + JSON.stringify({accountId:id})); 
-            await loadAccounts(); 
-        };
-        
-        document.getElementById('addAccountBtn')?.addEventListener('click', async ()=>{ 
-            const n=prompt('Название:'); 
-            if(n) { 
-                const b=parseInt(prompt('Баланс:'))||0; 
-                await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({account:{name:n, balance:b}})); 
-                await loadAccounts(); 
-            } 
-        });
-        
-        function renderUsersList() { 
-            const cont=document.getElementById('usersList'); 
-            if(!cont) return; 
-            cont.innerHTML=users.map(u=>`<div class="flex-between account-card"><span><strong>${escapeHtml(u.username)}</strong> (${u.role})</span><select id="role_${u.id}" onchange="updateUserRole('${u.id}')"><option value="user" ${u.role=='user'?'selected':''}>User</option><option value="partner" ${u.role=='partner'?'selected':''}>Partner</option><option value="admin" ${u.role=='admin'?'selected':''}>Admin</option></select></div>`).join(''); 
-        }
-        
-        window.updateUserRole = async id => { 
-            const r=document.getElementById('role_'+id).value; 
-            await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({userId:id, updates:{role:r}})); 
-            await loadUsers(); 
-        };
-        
-        async function checkAuth() { 
-            const t=localStorage.getItem('authToken'), u=localStorage.getItem('currentUser'); 
-            if(t&&u){ 
-                try { 
-                    const res = await fetch(SCRIPT_URL + '?action=checkToken&data=' + JSON.stringify({token:t}));
-                    if((await res.json()).valid) { 
-                        authToken=t; 
-                        currentUser=JSON.parse(u); 
-                        loginScreen.classList.add('hidden'); 
-                        registerScreen.classList.add('hidden'); 
-                        mainApp.classList.remove('hidden'); 
-                        initApp(); 
-                        return; 
-                    } 
-                } catch(e) {} 
-            } 
-            showLogin(); 
-        }
-        
-        // ========== ЗАПУСК ==========
+        document.getElementById('chatRecipient')?.addEventListener('change', renderChat);
+        // Аккаунты
+        function updateAccountSelects() { const s=document.getElementById('createOzonAccount'); if(s) s.innerHTML=accounts.map(a=>`<option value="${a.id}">${a.name} (${a.balance} бал.)</option>`).join(''); if(accounts.length){ document.getElementById('createAccountBalance').textContent=accounts[0].balance; s.addEventListener('change', ()=>{ const a=accounts.find(x=>x.id===s.value); if(a) document.getElementById('createAccountBalance').textContent=a.balance; }); } }
+        function renderAccountsList() { const cont=document.getElementById('accountsList'); if(!cont) return; cont.innerHTML=accounts.map(a=>`<div class="account-card flex-between"><span><strong>${a.name}</strong> : ${a.balance} бал.</span><button class="btn-icon danger" onclick="deleteAccount('${a.id}')"><i class="fas fa-trash"></i></button></div>`).join(''); }
+        window.deleteAccount = async id => { if(!confirm('Удалить?')) return; await fetch(SCRIPT_URL + '?action=deleteAccount&token=' + authToken + '&data=' + JSON.stringify({accountId:id})); await loadAccounts(); };
+        document.getElementById('addAccountBtn')?.addEventListener('click', async ()=>{ const n=prompt('Название:'); if(n) { const b=parseInt(prompt('Баланс:'))||0; await fetch(SCRIPT_URL + '?action=saveAccount&token=' + authToken + '&data=' + JSON.stringify({account:{name:n, balance:b}})); await loadAccounts(); } });
+        // Пользователи
+        function renderUsersList() { const cont=document.getElementById('usersList'); if(!cont) return; cont.innerHTML=users.map(u=>`<div class="flex-between account-card"><span><strong>${u.username}</strong> (${u.role})</span><select id="role_${u.id}" onchange="updateUserRole('${u.id}')"><option value="user" ${u.role=='user'?'selected':''}>User</option><option value="partner" ${u.role=='partner'?'selected':''}>Partner</option><option value="admin" ${u.role=='admin'?'selected':''}>Admin</option></select></div>`).join(''); }
+        window.updateUserRole = async id => { const r=document.getElementById('role_'+id).value; await fetch(SCRIPT_URL + '?action=updateUser&token=' + authToken + '&data=' + JSON.stringify({userId:id, updates:{role:r}})); await loadUsers(); };
+        // Проверка авторизации
+        async function checkAuth() { const t=localStorage.getItem('authToken'), u=localStorage.getItem('currentUser'); if(t&&u){ try { if((await (await fetch(SCRIPT_URL + '?action=checkToken&data=' + JSON.stringify({token:t}))).json()).valid) { authToken=t; currentUser=JSON.parse(u); loginScreen.classList.add('hidden'); registerScreen.classList.add('hidden'); mainApp.classList.remove('hidden'); initApp(); return; } } catch(e) {} } showLogin(); }
+        // Инициализация
         loadSettings();
-        
         document.querySelectorAll('[data-theme]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-theme', b.dataset.theme); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-color', b.dataset.color); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-card-style]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-card-style', b.dataset.cardStyle); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-density]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-density', b.dataset.density); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-radius]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-radius', b.dataset.radius); saveSettings(); updateActiveSettings(); }));
         document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click', ()=>{ body.setAttribute('data-view', b.dataset.view); saveSettings(); updateActiveSettings(); }));
-        
-        document.getElementById('settingsToggle')?.addEventListener('click', ()=>document.getElementById('settingsPanel').classList.toggle('hidden'));
-        document.getElementById('logoutBtn')?.addEventListener('click', logout);
-        
-        document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click', ()=>{ 
-            const tab=b.dataset.tab; 
-            document.querySelectorAll('.tab-btn').forEach(bt=>bt.classList.remove('active')); 
-            b.classList.add('active'); 
-            ['orders','create','chat','accounts','users'].forEach(t=>{
-                const el = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
-                if (el) el.classList.add('hidden');
-            }); 
-            const targetTab = document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
-            if (targetTab) targetTab.classList.remove('hidden');
-            if(tab==='accounts') renderAccountsList(); 
-            if(tab==='users') renderUsersList(); 
-            if(tab==='chat') initChatTab();
-        }));
-        
+        document.getElementById('settingsToggle').addEventListener('click', ()=>document.getElementById('settingsPanel').classList.toggle('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click', ()=>{ const tab=b.dataset.tab; document.querySelectorAll('.tab-btn').forEach(bt=>bt.classList.remove('active')); b.classList.add('active'); ['orders','create','chat','accounts','users'].forEach(t=>document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('hidden')); document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.remove('hidden'); if(tab==='accounts') renderAccountsList(); if(tab==='users') renderUsersList(); if(tab==='chat') renderChat(); }));
         document.getElementById('goToCreateBtn')?.addEventListener('click', ()=>document.querySelector('[data-tab="create"]').click());
-        
         checkAuth();
     </script>
 </body>
