@@ -142,8 +142,9 @@
         .auth-container { max-width: 420px; margin: 0 auto; } .auth-switch { text-align: center; margin-top: 20px; opacity: 0.8; } .auth-switch a { color: var(--primary); cursor: pointer; }
         .status-message { margin-top: 16px; text-align: center; min-height: 20px; }
         
-        .dialog-item { cursor: pointer; transition: background 0.2s; }
+        .dialog-item { cursor: pointer; transition: background 0.2s; padding: 12px; border-bottom: 1px solid var(--card-border); }
         .dialog-item:hover { background: rgba(59, 130, 246, 0.2); }
+        .dialog-active { background: var(--primary); opacity: 0.8; }
         
         @media (max-width: 767px) { 
             .form-row { grid-template-columns: 1fr; } 
@@ -267,7 +268,7 @@
                     </form>
                 </div>
             </div>
-            <!-- ЧАТ -->
+            <!-- ЧАТ (ИСПРАВЛЕННЫЙ) -->
             <div id="tabChat" class="hidden">
                 <h2>💬 Чат</h2>
                 
@@ -321,7 +322,7 @@
     <div id="lightbox" class="lightbox"><span class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">&times;</span><img id="lightboxImg" src=""></div>
     
     <script>
-        // ========== НАСТРОЙКА - ВСТАВЬ СВОЙ URL ==========
+        // ========== НАСТРОЙКА ==========
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwwhtBMRuMPyOho_lwrD8Bv5byZnIXpVq0SCr3a7hGmF34RbqV_lgLebZHChFmyx7p/exec';
         
         let currentUser = null, authToken = null, orders = [], accounts = [], users = [], chatMessages = [];
@@ -395,7 +396,8 @@
                     let userId = d.userId;
                     let role = d.role;
                     
-                    if (u === 'admin' || u === 'Ильдар') {
+                    // Админ по логину
+                    if (u === 'admin' || u === 'Ильдар' || userId === '3062d819-2262-468f-907e-3112d0a701f3') {
                         role = 'admin';
                     }
                     
@@ -503,7 +505,9 @@
                 
                 if (document.getElementById('tabChat') && !document.getElementById('tabChat').classList.contains('hidden')) {
                     renderDialogs();
-                    if (currentDialog) renderChatMessages();
+                    if (currentDialog) {
+                        renderChatMessages();
+                    }
                 }
             } catch(e) { console.error('Ошибка загрузки чата:', e); }
         }
@@ -638,42 +642,34 @@
             } catch(ex) { st.textContent = '❌ Ошибка'; }
         });
         
-        // ========== ЧАТ ==========
+        // ========== ЧАТ (ИСПРАВЛЕННЫЙ) ==========
         function renderDialogs() {
             const container = document.getElementById('dialogsContainer');
             if (!container) return;
             
             const dialogs = new Map();
             
+            // Собираем уникальные диалоги из сообщений
             chatMessages.forEach(msg => {
                 let dialogId = null;
                 let dialogName = null;
                 
-                if (currentUser.role === 'admin') {
-                    if (msg.senderId !== currentUser.id && msg.recipientId !== 'all') {
+                // Определяем ID диалога (собеседника)
+                if (msg.senderId === currentUser.id) {
+                    dialogId = msg.recipientId;
+                    dialogName = msg.recipientName;
+                } else if (msg.recipientId === currentUser.id) {
+                    dialogId = msg.senderId;
+                    dialogName = msg.senderName;
+                } else if (currentUser.role === 'admin') {
+                    // Для админа - показываем все диалоги, где он не участник
+                    if (msg.senderId !== currentUser.id && msg.recipientId !== currentUser.id) {
                         dialogId = msg.senderId;
                         dialogName = msg.senderName;
-                    } else if (msg.recipientId !== currentUser.id && msg.recipientId !== 'all') {
-                        dialogId = msg.recipientId;
-                        dialogName = msg.recipientName;
-                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
-                        dialogId = 'all';
-                        dialogName = 'Общий чат';
-                    }
-                } else {
-                    if (msg.senderId === currentUser.id && msg.recipientId !== 'all') {
-                        dialogId = msg.recipientId;
-                        dialogName = msg.recipientName;
-                    } else if (msg.recipientId === currentUser.id && msg.senderId !== 'all') {
-                        dialogId = msg.senderId;
-                        dialogName = msg.senderName;
-                    } else if (msg.recipientId === 'all' || msg.senderId === 'all') {
-                        dialogId = 'all';
-                        dialogName = 'Общий чат';
                     }
                 }
                 
-                if (dialogId && dialogId !== currentUser.id) {
+                if (dialogId && dialogId !== 'all' && dialogId !== currentUser.id) {
                     if (!dialogs.has(dialogId)) {
                         dialogs.set(dialogId, {
                             userId: dialogId,
@@ -691,7 +687,18 @@
                 }
             });
             
-            // Добавляем всех пользователей для админа
+            // Добавляем общий чат
+            const hasGeneralChat = chatMessages.some(msg => msg.recipientId === 'all' || msg.senderId === 'all');
+            if (hasGeneralChat || currentUser.role === 'admin') {
+                dialogs.set('all', {
+                    userId: 'all',
+                    userName: '📢 Общий чат',
+                    lastMessage: 'Сообщения для всех',
+                    lastTime: Math.max(...chatMessages.filter(m => m.recipientId === 'all' || m.senderId === 'all').map(m => m.timestamp || 0), 0)
+                });
+            }
+            
+            // Для админа - добавляем всех пользователей, даже если диалога не было
             if (currentUser.role === 'admin') {
                 users.forEach(user => {
                     if (user.id !== currentUser.id && !dialogs.has(user.id)) {
@@ -713,13 +720,9 @@
             }
             
             container.innerHTML = sortedDialogs.map(dialog => `
-                <div class="dialog-item" data-user-id="${dialog.userId}" style="
-                    padding: 12px;
-                    cursor: pointer;
-                    border-bottom: 1px solid var(--card-border);
-                    transition: background 0.2s;
-                    ${currentDialog && currentDialog.userId === dialog.userId ? 'background: var(--primary); opacity: 0.8;' : ''}
-                " onclick="selectDialog('${dialog.userId}', '${escapeHtml(dialog.userName).replace(/'/g, "\\'")}')">
+                <div class="dialog-item ${currentDialog && currentDialog.userId === dialog.userId ? 'dialog-active' : ''}" 
+                     data-user-id="${dialog.userId}" 
+                     onclick="selectDialog('${dialog.userId}', '${escapeHtml(dialog.userName).replace(/'/g, "\\'")}')">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <strong>${escapeHtml(dialog.userName)}</strong>
                         <small style="font-size: 10px;">${dialog.lastTime ? new Date(dialog.lastTime).toLocaleTimeString() : ''}</small>
@@ -733,6 +736,15 @@
         
         window.selectDialog = function(userId, userName) {
             currentDialog = { userId: userId, userName: userName };
+            
+            // Обновляем активный класс во всех диалогах
+            document.querySelectorAll('.dialog-item').forEach(el => {
+                if (el.dataset.userId === userId) {
+                    el.classList.add('dialog-active');
+                } else {
+                    el.classList.remove('dialog-active');
+                }
+            });
             
             const infoDiv = document.getElementById('currentDialogInfo');
             if (infoDiv) {
@@ -749,13 +761,15 @@
             let filteredMessages = [];
             
             if (currentDialog.userId === 'all') {
+                // Общий чат: все сообщения с recipientId = 'all' или senderId = 'all'
                 filteredMessages = chatMessages.filter(msg => msg.recipientId === 'all' || msg.senderId === 'all');
             } else {
+                // Личный диалог: сообщения между текущим пользователем и выбранным
                 filteredMessages = chatMessages.filter(msg => 
-                    (msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
-                    (msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id) ||
-                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId) ||
-                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId)
+                    (msg.senderId === currentUser.id && msg.recipientId === currentDialog.userId) ||
+                    (msg.recipientId === currentUser.id && msg.senderId === currentDialog.userId) ||
+                    (currentUser.role === 'admin' && msg.senderId === currentDialog.userId && msg.recipientId === currentUser.id) ||
+                    (currentUser.role === 'admin' && msg.recipientId === currentDialog.userId && msg.senderId === currentUser.id)
                 );
             }
             
@@ -789,6 +803,8 @@
                 const userId = firstDialog.dataset.userId;
                 const userName = firstDialog.querySelector('strong')?.textContent || 'Пользователь';
                 selectDialog(userId, userName);
+            } else if (currentDialog) {
+                renderChatMessages();
             }
         }
         
@@ -820,6 +836,7 @@
                 timestamp: Date.now()
             };
             
+            // Оптимистичное добавление в UI
             chatMessages.push(message);
             renderChatMessages();
             renderDialogs();
@@ -888,7 +905,7 @@
             }
             
             input.value = '';
-            alert(`✅ Сообщение отправлено`);
+            alert(`✅ Сообщение отправлено ${targetUsers.length} получателям`);
         });
         
         document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
